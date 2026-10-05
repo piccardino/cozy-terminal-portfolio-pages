@@ -1,0 +1,10 @@
+{
+  "linguaggi": ["Python", "TypeScript", "JavaScript", "Kotlin", "Java", "C++", "C#", "HTML / CSS"],
+  "web": ["React", "Next.js", "Node.js", "Flask", "FastAPI", "Tailwind CSS"],
+  "desktop_e_automazione": ["Android / Wear OS", "Jetpack Compose", "PySide6", "Tkinter / CustomTkinter", "PyAutoGUI", "Playwright"],
+  "database_e_dati": ["PostgreSQL", "SQLite", "Oracle SQL", "pandas", "NumPy"],
+  "ai_e_training": ["PyTorch", "DirectML", "Tokenizers", "Whisper / faster-whisper", "API per modelli AI"],
+  "llm_locali": ["Configurazione di LLM locali", "Inferenza locale", "Gestione di modelli e tokenizer", "Parametri di contesto e generazione", "Esecuzione su CPU / GPU"],
+  "grafica_e_calcolo": ["Three.js", "GSAP", "CSS 3D", "Canvas / Web Audio", "OpenCL", "Vulkan"],
+  "integrazioni_e_documenti": ["Firebase", "REST", "SOAP", "HL7", "DICOM", "XML / CSV / Excel", "ZPL", "SMB"]
+}
