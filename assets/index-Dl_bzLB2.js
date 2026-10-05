@@ -50,7 +50,7 @@
       <div class="crt-overlay" aria-hidden="true"></div>
     </div>
     <svg class="monitor-outline" viewBox="0 0 ${Z.photo.width} ${Z.photo.height}" aria-hidden="true">
-      <defs><filter id="monitor-edge-glow" x="-10%" y="-15%" width="120%" height="130%"><feGaussianBlur stdDeviation="6" /></filter></defs>
+      <defs><filter id="monitor-edge-glow" x="-15%" y="-25%" width="130%" height="150%"><feGaussianBlur stdDeviation="9" /></filter></defs>
       <g class="monitor-highlight" fill="none" stroke-linejoin="round" stroke-linecap="round">
         <path class="monitor-halo" d="${Z.monitorOutline}" filter="url(#monitor-edge-glow)" />
         <path class="monitor-edge" d="${Z.monitorOutline}" />
