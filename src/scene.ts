@@ -42,10 +42,7 @@ export class WorkspaceScene {
     document.addEventListener("visibilitychange", this.visibility);
     this.compact.addEventListener("change", this.modeChange);
     this.reduced.addEventListener("change", this.modeChange);
-    this.applyFallback();
-    if (!this.compact.matches && !this.reduced.matches) {
-      this.engineReady = this.initialize();
-    }
+    this.resize();
   }
 
   private initialize = async () => {
@@ -198,11 +195,13 @@ export class WorkspaceScene {
     }
     this.renderer?.setSize(w, h);
     this.draw();
+    if (photoProfile === "standard" && !this.compact.matches && !this.reduced.matches && !this.engineReady)
+      this.engineReady = this.initialize();
   };
 
   private modeChange = () => {
     this.pause();
-    if (!this.compact.matches && !this.reduced.matches && !this.engineReady)
+    if (photoProfile === "standard" && !this.compact.matches && !this.reduced.matches && !this.engineReady)
       this.engineReady = this.initialize();
     this.draw();
     if (this.useWebGL && this.progress.value < 1 && !document.hidden)

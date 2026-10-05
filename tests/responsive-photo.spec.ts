@@ -24,3 +24,24 @@ test("supplied photos and calibrated objects follow aspect ratio and live resizi
     await page.screenshot({ path: `.local/photo-${image}-${width}.png`, animations: "disabled" });
   }
 });
+
+test("16:9 reload preserves the monitor text and artwork position", async ({ page }) => {
+  await page.setViewportSize({ width: 1920, height: 1080 });
+  await page.goto("/");
+  const bounds = () => page.locator(".monitor-surface, .mini-inner, .mountain").evaluateAll(elements =>
+    elements.map(el => {
+      const b = el.getBoundingClientRect();
+      return { x: b.x, y: b.y, width: b.width, height: b.height };
+    }));
+  const before = await bounds();
+  await page.reload();
+  await expect(page.locator(".desk-photo")).toHaveAttribute("src", /workspace-wide.webp$/);
+  expect(await bounds()).toEqual(before);
+  await expect(page.locator(".workspace")).toHaveAttribute("data-engine", "css");
+  const alignment = await page.locator(".monitor-surface").evaluate(el => {
+    const surface = el.getBoundingClientRect();
+    const monitor = document.querySelector(".monitor-hit-target")!.getBoundingClientRect();
+    return Math.abs(surface.y - monitor.y);
+  });
+  expect(alignment).toBeLessThan(20);
+});
