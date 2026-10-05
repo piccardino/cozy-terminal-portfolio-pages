@@ -70,17 +70,31 @@ export function selectPhoto(width: number, height: number) {
   const w = portrait ? 941 : 2365;
   const h = portrait ? 1672 : 665;
   const screen = portrait ? [177, 661, 795, 1007] : [878, 147, 1471, 460];
-  const frame = portrait ? [165, 653, 805, 1027] : [849, 139, 1491, 478];
   const linkedin = portrait ? [473, 224, 674, 398] : [1144, 13, 1301, 143];
-  const mug = portrait ? [813, 1069, 939, 1200] : [1604, 461, 1740, 567];
-  const rectPath = ([l, t, r, b]: number[]) => `M ${l} ${t} H ${r} V ${b} H ${l} Z`;
+  const mug = portrait ? [813, 1068, 939, 1184] : [1608, 461, 1740, 564];
   const bounds = ([left, top, right, bottom]: number[]) => ({ left, top, right, bottom });
   Object.assign(sceneConfig.photo, { width: w, height: h, src: asset(`assets/workspace-${profile}.webp`) });
   sceneConfig.photo.src = asset(`assets/workspace-${portrait ? "portrait" : "wide"}.webp`);
   sceneConfig.monitorBounds = { left: screen[0] / w, top: screen[1] / h, right: screen[2] / w, bottom: screen[3] / h };
-  sceneConfig.monitorOutline = rectPath(frame);
-  sceneConfig.linkedinObject = { bounds: bounds(linkedin), outline: rectPath(linkedin) };
-  sceneConfig.cvObject = { bounds: bounds(mug), outline: rectPath(mug), clipPath: "M0 0 H1 V1 H0 Z" };
+  sceneConfig.monitorOutline = portrait
+    ? "M172 654 H797 Q804 654 804 661 V1027 L520 1025 V1067 L577 1069 Q584 1070 585 1076 L587 1095 Q587 1101 579 1102 H370 Q366 1102 367 1095 L371 1075 Q372 1069 379 1069 L467 1067 V1026 L165 1025 V661 Q165 654 172 654 Z"
+    : "M858 140 H1483 Q1490 140 1490 147 V471 Q1490 478 1483 478 H1200 V504 L1259 503 L1267 525 Q1267 531 1258 531 H1058 Q1053 531 1053 526 L1057 514 L1122 505 V478 H854 Q849 478 849 470 L851 147 Q851 140 858 140 Z";
+  sceneConfig.linkedinObject = {
+    bounds: bounds(linkedin),
+    outline: portrait ? "M476 226 L674 223 L673 393 L474 398 Z" : "M1143 16 L1301 12 L1302 139 H1143 Z",
+  };
+  const silhouette = portrait
+    ? "M815 1081 C813 1070 836 1067 860 1068 C885 1068 906 1074 907 1081 L907 1091 C923 1089 939 1105 939 1130 C939 1155 927 1170 906 1173 L905 1177 C903 1188 819 1186 814 1174 Z M908 1101 C920 1099 929 1113 929 1131 C929 1148 921 1161 908 1161 Z"
+    : "M1609 465 C1625 460 1688 460 1705 466 L1705 476 C1724 473 1740 487 1740 512 C1740 535 1727 546 1705 547 L1705 555 C1703 568 1612 567 1609 552 Z M1706 486 C1719 480 1730 491 1730 512 C1730 528 1722 540 1706 539 Z";
+  const rim = portrait
+    ? "M815 1081 C828 1091 894 1095 907 1081"
+    : "M1609 465 C1624 473 1688 474 1705 466";
+  let axis = 0;
+  const clipPath = silhouette.replace(/\d+(?:\.\d+)?/g, value => {
+    const horizontal = axis++ % 2 === 0;
+    return ((Number(value) - mug[horizontal ? 0 : 1]) / (mug[horizontal ? 2 : 3] - mug[horizontal ? 0 : 1])).toFixed(5);
+  });
+  sceneConfig.cvObject = { bounds: bounds(mug), outline: `${silhouette} ${rim}`, clipPath };
   return true;
 }
 
