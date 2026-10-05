@@ -61,7 +61,7 @@ export let photoProfile = "standard";
 
 /** Keep photograph, hit areas and transition geometry in the same coordinate space. */
 export function selectPhoto(width: number, height: number) {
-  const profile = width / height < 1 ? "portrait" : width / height >= 2 ? "wide" : "standard";
+  const profile = width / height < 1 ? "portrait" : width / height >= 16 / 9 ? "wide" : "standard";
   if (profile === photoProfile) return false;
   photoProfile = profile;
   Object.assign(sceneConfig, structuredClone(originalScene));

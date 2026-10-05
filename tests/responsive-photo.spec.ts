@@ -1,9 +1,11 @@
 import { test, expect } from "@playwright/test";
 
 test("supplied photos and calibrated objects follow aspect ratio and live resizing", async ({ page }) => {
+  test.setTimeout(45000);
   await page.goto("/");
   for (const [width, height, image] of [
-    [2560, 720, "wide"], [2100, 900, "wide"], [450, 800, "portrait"], [1440, 900, "standard"],
+    [2560, 720, "wide"], [2100, 900, "wide"], [1800, 900, "wide"], [1920, 1080, "wide"],
+    [450, 800, "portrait"], [1440, 900, "standard"],
   ] as const) {
     await page.setViewportSize({ width, height });
     await expect(page.locator(".desk-photo")).toHaveAttribute("src", image === "standard" ? /workspace.webp$/ : new RegExp(`workspace-${image}.webp$`));

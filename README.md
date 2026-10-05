@@ -18,7 +18,7 @@ Richiede Node.js 22.12+ o 24+. La pubblicazione aggiorna `gh-pages` di questa st
 
 ## Fotografie e contenuti
 
-Le immagini fornite sono ottimizzate in WebP: panoramica per 32:9 e 21:9 (ritaglio centrale), verticale per 9:16. Gli altri desktop conservano la fotografia originale. Monitor, foto LinkedIn e tazza/CV seguono le coordinate della fotografia anche al ridimensionamento. I nuovi formati usano la transizione CSS; il desktop standard conserva Three.js.
+Le immagini fornite sono ottimizzate in WebP: panoramica per tutti i rapporti da 16:9 a 32:9, inclusi quelli intermedi (scala proporzionale e ritaglio centrale dinamici), verticale per 9:16. Gli altri desktop conservano la fotografia originale. Monitor, foto LinkedIn e tazza/CV seguono le coordinate della fotografia anche al ridimensionamento. I nuovi formati usano la transizione CSS; il desktop standard conserva Three.js.
 
 Le calibrazioni sono in `src/sceneConfig.ts`; nome, contatti e progetti in `src/portfolio.ts` e `src/workProjects.ts`; traduzioni in `src/i18n.ts` e competenze in `src/stack.json`.
 
