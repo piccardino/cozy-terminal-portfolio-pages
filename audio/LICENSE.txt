@@ -1,0 +1,17 @@
+Fireplace Sound loop
+Author: PagDev
+Source: https://opengameart.org/content/fireplace-sound-loop
+Original file: https://opengameart.org/sites/default/files/fire.wav
+License: Creative Commons CC0 1.0 Universal
+License details: https://creativecommons.org/publicdomain/zero/1.0/
+
+The source page identifies this recording as a wood-burning fireplace loop
+and releases it under CC0. Attribution is not required; credit is retained here.
+
+Adaptation for this portfolio:
+- DC offset removal and peak normalization.
+- 120 ms overlap at the loop seam, retaining approximately 29.14 seconds.
+- Converted to Ogg Vorbis and MP3 for browser playback.
+- Playback uses the recording only, with no synthesized audio layer.
+
+Retrieved on 2026-10-05.
