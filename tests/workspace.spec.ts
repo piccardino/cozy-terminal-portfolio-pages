@@ -62,8 +62,8 @@ test("camera matches the photograph, zooms into the framed monitor, pauses, and 
   expect(rect).toBeTruthy();
   // On 1440x900 the photograph is fitted by its height, cropped horizontally.
   const scale = 900 / 941;
-  expect(rect!.x).toBeCloseTo((1440 - 1672 * scale) / 2 + 424 * scale, 0);
-  expect(rect!.y).toBeCloseTo(194 * scale, 0);
+  expect(rect!.x).toBeCloseTo((1440 - 1672 * scale) / 2 + 423 * scale, 0);
+  expect(rect!.y).toBeCloseTo(193 * scale, 0);
   await page.screenshot({ path: ".local/desk-desktop.png" });
   await enter(page);
   await expect(page.locator(".workspace")).toHaveAttribute(

@@ -38,9 +38,9 @@ export const sceneConfig = {
     src: asset("assets/workspace.webp"),
   },
   monitorBounds: {
-    left: 424 / 1672,
-    top: 194 / 941,
-    right: 1263 / 1672,
+    left: 423 / 1672,
+    top: 193 / 941,
+    right: 1266 / 1672,
     bottom: 626 / 941,
   },
   // Physical silhouette measured in photo pixels: bezel, neck, and desk base.
@@ -87,7 +87,8 @@ export function selectPhoto(width: number, height: number) {
   const portrait = profile === "portrait";
   const w = portrait ? 941 : 2365;
   const h = portrait ? 1672 : 665;
-  const screen = portrait ? [177, 661, 795, 1007] : [878, 147, 1471, 460];
+  // Cover the inner display, including its side margins, rather than the text.
+  const screen = portrait ? [172, 662, 797, 1007] : [855, 147, 1486, 462];
   const linkedin = portrait ? [473, 224, 674, 398] : [1144, 13, 1301, 143];
   const mug = portrait ? [810, 1064, 943, 1187] : [1607, 455, 1742, 568];
   const bounds = ([left, top, right, bottom]: number[]) => ({ left, top, right, bottom });

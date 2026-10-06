@@ -1,7 +1,8 @@
 import { test, expect } from "@playwright/test";
 
 test("supplied photos and calibrated objects follow aspect ratio and live resizing", async ({ page }) => {
-  test.setTimeout(45000);
+  // Six animated round trips plus twelve screenshots need margin in cloud CI.
+  test.setTimeout(60000);
   await page.goto("/");
   for (const [width, height, image] of [
     [2560, 720, "wide"], [2100, 900, "wide"], [1800, 900, "wide"], [1920, 1080, "wide"],

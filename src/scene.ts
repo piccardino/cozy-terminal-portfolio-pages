@@ -6,6 +6,17 @@ import type * as THREE from "three";
 type Three = typeof THREE;
 export type WorkspaceView = "desk" | "monitor" | "terminal";
 
+function monitorWorld(config: typeof sceneConfig) {
+  const b = config.monitorBounds;
+  const height = config.photo.worldWidth * config.photo.height / config.photo.width;
+  return {
+    x: ((b.left + b.right) / 2 - 0.5) * config.photo.worldWidth,
+    y: (0.5 - (b.top + b.bottom) / 2) * height,
+    width: (b.right - b.left) * config.photo.worldWidth,
+    height: (b.bottom - b.top) * height,
+  };
+}
+
 export class WorkspaceScene {
   private three?: Three;
   private renderer?: THREE.WebGLRenderer;
@@ -52,6 +63,9 @@ export class WorkspaceScene {
   }
 
   private initialize = async () => {
+    // Keep the standard photo and its geometry together if the viewport changes
+    // while Three.js or its texture is loading. Other profiles use the CSS photo.
+    const config = structuredClone(sceneConfig);
     try {
       const T = await import("three");
       if (this.disposed) return;
@@ -63,7 +77,7 @@ export class WorkspaceScene {
       });
       this.renderer = renderer;
       renderer.setPixelRatio(
-        Math.min(devicePixelRatio, sceneConfig.performance.maxDpr),
+        Math.min(devicePixelRatio, config.performance.maxDpr),
       );
       renderer.domElement.className = "scene-canvas";
       renderer.domElement.setAttribute("aria-hidden", "true");
@@ -74,13 +88,13 @@ export class WorkspaceScene {
       this.root.insertBefore(renderer.domElement, this.screen);
       this.scene = new T.Scene();
       this.camera = new T.PerspectiveCamera(
-        sceneConfig.camera.fov,
+        config.camera.fov,
         1,
-        sceneConfig.camera.near,
-        sceneConfig.camera.far,
+        config.camera.near,
+        config.camera.far,
       );
       const texture = await new T.TextureLoader().loadAsync(
-        sceneConfig.photo.src,
+        config.photo.src,
       );
       if (this.disposed) {
         texture.dispose();
@@ -88,18 +102,18 @@ export class WorkspaceScene {
       }
       texture.colorSpace = T.SRGBColorSpace;
       this.texture = texture;
-      const photoH = this.worldHeight;
-      this.geometry = new T.PlaneGeometry(sceneConfig.photo.worldWidth, photoH);
+      const photoH = config.photo.worldWidth * config.photo.height / config.photo.width;
+      this.geometry = new T.PlaneGeometry(config.photo.worldWidth, photoH);
       this.photoMaterial = new T.MeshBasicMaterial({ map: texture });
       this.scene.add(new T.Mesh(this.geometry, this.photoMaterial));
-      const bounds = this.monitorWorld;
+      const bounds = monitorWorld(config);
       this.monitorGeometry = new T.PlaneGeometry(bounds.width, bounds.height);
       this.glow = new T.ShaderMaterial({
         transparent: true,
         depthWrite: false,
         uniforms: {
           uTime: { value: 0 },
-          uStrength: { value: sceneConfig.monitorPlane.glow },
+          uStrength: { value: config.monitorPlane.glow },
         },
         vertexShader:
           "varying vec2 vUv; void main(){vUv=uv;gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.0);}",
@@ -108,13 +122,11 @@ export class WorkspaceScene {
           float flicker=0.97+0.03*sin(uTime*1.8);gl_FragColor=vec4(0.15,1.0,0.55,uStrength*(0.4+scan*0.2+edge*0.3)*flicker);}`,
       });
       const monitor = new T.Mesh(this.monitorGeometry, this.glow);
-      monitor.position.set(bounds.x, bounds.y, sceneConfig.monitorPlane.z);
+      monitor.position.set(bounds.x, bounds.y, config.monitorPlane.z);
       this.scene.add(monitor);
       this.resize();
-      this.root.dataset.engine = "webgl";
       if (
-        !this.compact.matches &&
-        !this.reduced.matches &&
+        this.useWebGL &&
         !document.hidden &&
         this.progress.value < 1
       )
@@ -134,13 +146,7 @@ export class WorkspaceScene {
     );
   }
   private get monitorWorld() {
-    const b = sceneConfig.monitorBounds;
-    return {
-      x: ((b.left + b.right) / 2 - 0.5) * sceneConfig.photo.worldWidth,
-      y: (0.5 - (b.top + b.bottom) / 2) * this.worldHeight,
-      width: (b.right - b.left) * sceneConfig.photo.worldWidth,
-      height: (b.bottom - b.top) * this.worldHeight,
-    };
+    return monitorWorld(sceneConfig);
   }
   private get useWebGL() {
     return (
@@ -148,8 +154,8 @@ export class WorkspaceScene {
       !!this.texture &&
       !this.webglLost &&
       !this.compact.matches &&
-      !this.reduced.matches
-      && photoProfile === "standard"
+      !this.reduced.matches &&
+      photoProfile === "standard"
     );
   }
 
@@ -209,6 +215,8 @@ export class WorkspaceScene {
     }
     this.renderer?.setSize(w, h);
     this.draw();
+    if (this.useWebGL && this.progress.value < 1 && !document.hidden) this.resume();
+    else this.pause();
     if (photoProfile === "standard" && !this.compact.matches && !this.reduced.matches && !this.engineReady)
       this.engineReady = this.initialize();
   };
