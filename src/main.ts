@@ -120,13 +120,19 @@ const fireflyPositions = [
   [70, 82],
   [60, 91],
   [42, 87],
+  [20, 52],
+  [34, 76],
+  [55, 16],
+  [73, 18],
+  [90, 56],
+  [93, 89],
 ];
 
 document.querySelector<HTMLDivElement>("#app")!.innerHTML = `
   <div class="workspace" data-view="desk" data-engine="css" data-render-state="paused" data-wallpaper="${wallpaper}">
     <img class="desk-photo" src="${sceneConfig.photo.src}" alt="Una scrivania accogliente di sera, con piante, luce calda e un monitor con terminale verde." fetchpriority="high" />
     <div class="desk-shade" aria-hidden="true"></div>
-    <div class="fireflies" aria-hidden="true">${fireflyPositions.map(([x, y], i) => `<i style="--x:${x}%;--y:${y}%;--drift:${i % 2 ? -1 : 1};--duration:${13 + (i % 7) * 2}s;--delay:-${i * 2.3}s;--size:${i % 3 ? 2 : 3}px"></i>`).join("")}</div>
+    <div class="fireflies" aria-hidden="true">${fireflyPositions.map(([x, y], i) => `<i style="--x:${x}%;--y:${y}%;--travel-x:${(i % 2 ? -1 : 1) * (20 + (i % 5) * 6)}px;--travel-y:${30 + (i % 4) * 7}px;--duration:${22 + (i % 7) * 2}s;--delay:-${i * 2.3}s;--glow-duration:${5 + (i % 5)}s;--glow-delay:-${i * 1.7}s;--size:${i % 3 ? 3 : 4}px"></i>`).join("")}</div>
     <header class="desk-header desk-chrome">
       <div class="desk-brand"><a class="wordmark" href="${portfolio.github}" target="_blank" rel="noopener noreferrer" aria-label="GitHub di ${esc(portfolio.name)}"><span class="brand-symbol">p<span>_</span></span><span>${esc(portfolio.name)}<small>PERSONAL WORKSPACE</small></span></a>${fullscreenButton()}</div>
       <div class="desk-header-right"><span class="local-time"><span class="country-label"></span><time data-clock></time></span>${languageSwitch()}</div>

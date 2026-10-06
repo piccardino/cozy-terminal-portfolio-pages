@@ -776,10 +776,9 @@ test("fireflies stay on the desk, ASCII fits, and the fire plays only after bein
   expect(recording.channels).toBe(2);
   await enter(page);
   await expect(page.locator(".fireflies")).toBeHidden();
-  await expect(page.locator(".fireflies i").first()).toHaveCSS(
-    "animation-play-state",
-    "paused",
-  );
+  expect(await page.locator(".fireflies i").first().evaluate(el =>
+    el.getAnimations().every(animation => animation.playState === "paused"),
+  )).toBe(true);
   await page.getByRole("button", { name: "Disable fire ambience" }).click();
   await expect
     .poll(() =>
@@ -798,7 +797,9 @@ test("fireflies stay on the desk, ASCII fits, and the fire plays only after bein
   expect(downloads).toHaveLength(1);
   await page.keyboard.press("Escape");
   await page.emulateMedia({ reducedMotion: "reduce" });
-  await expect(page.locator(".fireflies")).toBeHidden();
+  await expect(page.locator(".workspace")).toHaveAttribute("data-view", "desk");
+  await expect(page.locator(".fireflies")).toBeVisible();
+  expect(await page.locator(".fireflies i").first().evaluate(el => el.getAnimations().length)).toBe(0);
 });
 
 test("the fireplace recording also loops with the MP3 browser fallback", async ({
