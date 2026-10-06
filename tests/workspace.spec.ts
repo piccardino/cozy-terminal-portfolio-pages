@@ -456,8 +456,8 @@ test("LinkedIn hover reaches the entire photograph through the empty header acro
   await page.keyboard.press("Shift+Tab");
   await expect(link).toBeFocused();
   await expect(page.locator(".linkedin-highlight")).toHaveCSS("opacity", "1");
-  await page.getByRole("button", { name: "Enable fire ambience" }).click();
-  await expect(page.locator(".desk-header .sound-toggle")).toHaveAttribute(
+  await page.getByRole("button", { name: "Left speaker: turn fire sound on", exact: true }).click();
+  await expect(page.locator(".speaker-hotspot")).toHaveAttribute(
     "aria-pressed",
     "true",
   );
@@ -747,8 +747,8 @@ test("fireflies stay on the desk, ASCII fits, and the fire plays only after bein
   expect(await art.evaluate((el) => el.scrollWidth <= el.clientWidth)).toBe(
     true,
   );
-  await page.getByRole("button", { name: "Enable fire ambience" }).click();
-  await expect(page.locator(".desk-header .sound-toggle")).toHaveAttribute(
+  await page.getByRole("button", { name: "Left speaker: turn fire sound on", exact: true }).click();
+  await expect(page.locator(".speaker-hotspot")).toHaveAttribute(
     "aria-pressed",
     "true",
   );
@@ -818,8 +818,8 @@ test("the fireplace recording also loops with the MP3 browser fallback", async (
   });
   await page.goto("/");
   expect(downloads).toEqual([]);
-  await page.getByRole("button", { name: "Enable fire ambience" }).click();
-  await expect(page.locator(".desk-header .sound-toggle")).toHaveAttribute(
+  await page.getByRole("button", { name: "Left speaker: turn fire sound on", exact: true }).click();
+  await expect(page.locator(".speaker-hotspot")).toHaveAttribute(
     "aria-pressed",
     "true",
   );

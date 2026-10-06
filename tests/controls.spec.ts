@@ -153,12 +153,12 @@ test("fullscreen controls fit narrow mobile headers", async ({ page }) => {
         ".wordmark",
         ".fullscreen-toggle",
         ".language-switch",
-        ".sound-toggle",
       ];
       return selectors.map((selector) =>
         header.querySelector(selector)!.getBoundingClientRect().toJSON(),
       );
     });
+    await expect(page.locator(".desk-header .sound-toggle")).toHaveCount(0);
     for (let i = 0; i < elements.length; i++) {
       expect(elements[i].left).toBeGreaterThanOrEqual(0);
       expect(elements[i].right).toBeLessThanOrEqual(width);

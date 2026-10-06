@@ -30,6 +30,7 @@ export class WorkspaceScene {
   private elapsed = 0;
   private engineReady?: Promise<void>;
   private outline: SVGElement;
+  private wallpaperToggle: HTMLElement;
 
   constructor(
     private root: HTMLElement,
@@ -39,6 +40,7 @@ export class WorkspaceScene {
     private onSettled: (view: WorkspaceView) => void,
   ) {
     this.outline = root.querySelector<SVGElement>(".monitor-outline")!;
+    this.wallpaperToggle = root.querySelector<HTMLElement>(".wallpaper-toggle")!;
     this.observer = new ResizeObserver(this.resize);
     this.observer.observe(root);
     document.addEventListener("visibilitychange", this.visibility);
@@ -345,6 +347,7 @@ export class WorkspaceScene {
     // portrait close-up crops its sides. The interactive terminal can reflow.
     this.screen.style.setProperty("--mini-scale", String(rect.width / 840));
     this.screen.style.setProperty("--mini-offset", `${rect.left - left}px`);
+    this.screen.style.setProperty("--mini-quote-size", `${Math.min(14, (right - left - 40) / (24 * 0.6 * rect.width / 840))}px`);
     rect = {
       ...rect,
       left,
@@ -358,6 +361,9 @@ export class WorkspaceScene {
         height: `${rect.height}px`,
       });
     }
+    const inset = Math.max(7, Math.min(14, rect.width * 0.018));
+    this.wallpaperToggle.style.left = `${rect.left + rect.width - inset}px`;
+    this.wallpaperToggle.style.top = `${rect.top + rect.height - inset}px`;
     this.root.style.setProperty("--journey", String(p));
     this.root.style.setProperty(
       "--desk-opacity",

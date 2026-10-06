@@ -140,7 +140,6 @@ time {
   pointer-events: none;
 }
 .desk-header .wordmark,
-.desk-header .sound-toggle,
 .desk-header .fullscreen-toggle,
 .desk-header .language-switch {
   pointer-events: auto;
@@ -226,14 +225,6 @@ time {
   align-items: center;
   gap: 10px;
   transition: color 0.2s;
-}
-.desk-header .sound-toggle {
-  font-size: 10px;
-  letter-spacing: 1px;
-  padding: 11px 14px;
-  border: 1px solid #f2e9d82b;
-  border-radius: 4px;
-  backdrop-filter: blur(8px);
 }
 .sound-toggle:hover {
   color: var(--green);
@@ -326,6 +317,65 @@ time {
 }
 .workspace[data-view="monitor"] .mini-enter {
   text-align: center;
+}
+.mountain[data-wallpaper="mountains"] {
+  margin-bottom: 24px;
+}
+.mini-quote {
+  margin: 0 0 20px;
+  font-size: 14px;
+  line-height: 1.6;
+  color: #67e5bd;
+}
+.workspace[data-wallpaper="sunset"] .mini-quote {
+  display: none;
+}
+@media (max-aspect-ratio: 1/1) {
+  .mini-quote {
+    font-size: var(--mini-quote-size, 14px);
+    text-align: center;
+  }
+}
+.wallpaper-toggle {
+  position: absolute;
+  z-index: 6;
+  transform: translate(-100%, -100%);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 55px;
+  height: 28px;
+  padding: 0;
+  border: 1px solid #4bb58c4d;
+  border-radius: 4px;
+  color: #8eddb8;
+  background: #04150fea;
+  transition: color 0.2s, border-color 0.2s, opacity 0.2s;
+}
+.wallpaper-toggle:hover,
+.wallpaper-toggle:focus-visible {
+  color: #b9ffe0;
+  border-color: #8eddb8;
+}
+.wallpaper-dots {
+  display: flex;
+  gap: 3px;
+}
+.wallpaper-dots i {
+  width: 3px;
+  height: 3px;
+  border-radius: 50%;
+  background: #45775e;
+}
+.workspace[data-wallpaper="mountains"] .wallpaper-dots i:first-child,
+.workspace[data-wallpaper="sunset"] .wallpaper-dots i:last-child {
+  background: #b9ffe0;
+}
+.workspace:not([data-view="desk"]):not([data-view="monitor"]) .wallpaper-toggle {
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
 }
 .mini-system {
   border-left: 1px solid #38e3a360;
@@ -1908,13 +1958,6 @@ time {
     font-size: 27px;
   }
   .local-time {
-    display: none;
-  }
-  .desk-header .sound-toggle {
-    padding: 10px;
-    border: 0;
-  }
-  .desk-header .sound-toggle span {
     display: none;
   }
   .desk-shade {

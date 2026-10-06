@@ -3,6 +3,7 @@ import { test, expect } from "@playwright/test";
 test("the detailed landscape fills its area without clipping at different sizes", async ({
   page,
 }) => {
+  await page.addInitScript(() => localStorage.setItem("portfolio-wallpaper", "sunset"));
   for (const [width, height] of [
     [1440, 900],
     [1920, 1080],

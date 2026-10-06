@@ -14,7 +14,7 @@ import {
   type Language,
 } from "./i18n";
 import { FireAudio } from "./fireAudio";
-import { sunsetLandscape } from "./ascii";
+import { wallpaperLandscape, type Wallpaper } from "./ascii";
 import { CvViewer } from "./cv";
 import { WorkspaceControls } from "./workspaceControls";
 
@@ -27,6 +27,8 @@ const icon = (name: string, size = 18) => {
     sound:
       '<path d="m11 5-6 4H2v6h3l6 4Zm4 3a6 6 0 0 1 0 8m3-11a10 10 0 0 1 0 14"/>',
     mute: '<path d="m11 5-6 4H2v6h3l6 4Zm6 4 5 6m0-6-5 6"/>',
+    mountains: '<path d="m2 20 7-12 5 7 3-4 5 9Z"/><circle cx="17" cy="5" r="2"/><path d="m7 11 2 2 2-2"/>',
+    sunset: '<path d="M2 17h20M4 21h16M6 17a6 6 0 0 1 12 0M12 3v3M3 7l2 2m16-2-2 2"/>',
     back: '<path d="M9 4H4v16h5m7-15-7 7 7 7m-7-7h13"/>',
     github:
       '<path d="M9 19c-4 1-4-2-6-2m12 5v-4a3.5 3.5 0 0 0-1-3c3-.3 6-1.5 6-5a4 4 0 0 0-1-3c.3-1 .3-2-1-3-2 0-3 1-3 1a12 12 0 0 0-6 0S8 4 6 4C5 5 5 6 5.3 7A4 4 0 0 0 4 10c0 3.5 3 4.7 6 5a3.5 3.5 0 0 0-1 3v4"/>',
@@ -90,7 +92,11 @@ function stackJson() {
         : `<span class="${colon ? "code-key" : "code-string"}">${text}</span>${colon || ""}`,
   );
 }
-const landscape = sunsetLandscape();
+let wallpaper: Wallpaper = "mountains";
+try {
+  if (localStorage.getItem("portfolio-wallpaper") === "sunset") wallpaper = "sunset";
+} catch { /* The selector also works when storage is unavailable. */ }
+const landscape = wallpaperLandscape(wallpaper);
 const languageSwitch = () =>
   `<div class="language-switch" role="group" aria-label="Language / Lingua"><button data-language="en" aria-label="English">EN</button><button data-language="it" aria-label="Italiano">IT</button></div>`;
 const fullscreenButton = () =>
@@ -117,13 +123,13 @@ const fireflyPositions = [
 ];
 
 document.querySelector<HTMLDivElement>("#app")!.innerHTML = `
-  <div class="workspace" data-view="desk" data-engine="css" data-render-state="paused">
+  <div class="workspace" data-view="desk" data-engine="css" data-render-state="paused" data-wallpaper="${wallpaper}">
     <img class="desk-photo" src="${sceneConfig.photo.src}" alt="Una scrivania accogliente di sera, con piante, luce calda e un monitor con terminale verde." fetchpriority="high" />
     <div class="desk-shade" aria-hidden="true"></div>
     <div class="fireflies" aria-hidden="true">${fireflyPositions.map(([x, y], i) => `<i style="--x:${x}%;--y:${y}%;--drift:${i % 2 ? -1 : 1};--duration:${13 + (i % 7) * 2}s;--delay:-${i * 2.3}s;--size:${i % 3 ? 2 : 3}px"></i>`).join("")}</div>
     <header class="desk-header desk-chrome">
       <div class="desk-brand"><a class="wordmark" href="${portfolio.github}" target="_blank" rel="noopener noreferrer" aria-label="GitHub di ${esc(portfolio.name)}"><span class="brand-symbol">p<span>_</span></span><span>${esc(portfolio.name)}<small>PERSONAL WORKSPACE</small></span></a>${fullscreenButton()}</div>
-      <div class="desk-header-right"><span class="local-time"><span class="country-label"></span><time data-clock></time></span>${languageSwitch()}<button class="sound-toggle" aria-pressed="false">${icon("mute", 16)}</button></div>
+      <div class="desk-header-right"><span class="local-time"><span class="country-label"></span><time data-clock></time></span>${languageSwitch()}</div>
     </header>
     <div class="monitor-surface">
       <div class="mini-screen" aria-hidden="true">
@@ -135,7 +141,7 @@ document.querySelector<HTMLDivElement>("#app")!.innerHTML = `
 │  └─ wollytcg
 ├─ stack.json
 └─ contact.sh</pre><div class="mini-git">$ git status<br>On branch main<br><span>working tree clean</span></div><span class="mini-prompt">${esc(portfolio.handle)}@workspace:~ $ <b class="cursor">▌</b></span></aside>
-          <div class="mini-center"><pre class="mountain">${landscape.html}</pre><span class="mini-enter">[ clicca per entrare ]</span></div>
+          <div class="mini-center"><pre class="mountain" data-wallpaper="${wallpaper}">${landscape.html}</pre><p class="mini-quote">“Good software<br>for a better tomorrow.”<b class="cursor">▌</b></p><span class="mini-enter">[ clicca per entrare ]</span></div>
           <aside class="mini-system"><span class="mini-title">SYSTEM</span><p>OS&nbsp;&nbsp;&nbsp;: web<br>SHELL: zsh<br>USER : ${esc(portfolio.handle)}</p><div class="mini-bars">CPU <i style="--bar:12%"></i> 12%<br>MEM <i style="--bar:34%"></i> 34%<br>DISK<i style="--bar:28%"></i> 28%</div><p class="mini-playing">NOW PLAYING<br>late-night thoughts<br><span>// a calmer mind</span></p><div class="equalizer">${Array.from({ length: 22 }, (_, i) => `<i style="--i:${i};--height:${8 + Math.sin(i * 1.7) * 7 + (22 - i) * 0.9}px"></i>`).join("")}</div><time data-date></time><time data-clock></time></aside>
         </div>
       </div>
@@ -166,6 +172,7 @@ document.querySelector<HTMLDivElement>("#app")!.innerHTML = `
       </main>
       <div class="crt-overlay" aria-hidden="true"></div>
     </div>
+    <button class="wallpaper-toggle" type="button"></button>
     <svg class="monitor-outline" viewBox="0 0 ${sceneConfig.photo.width} ${sceneConfig.photo.height}" aria-hidden="true">
       <defs><clipPath id="speaker-hit-clip" clipPathUnits="objectBoundingBox"><path d="${sceneConfig.speakerObject.clipPath}" /></clipPath><clipPath id="cv-mug-hit-clip" clipPathUnits="objectBoundingBox"><path d="${sceneConfig.cvObject.clipPath}" clip-rule="evenodd" fill-rule="evenodd" /></clipPath><filter id="monitor-edge-glow" x="-15%" y="-25%" width="130%" height="150%"><feGaussianBlur stdDeviation="9" /></filter><clipPath id="linkedin-photo-clip"><path d="${sceneConfig.linkedinObject.outline}" /></clipPath><filter id="linkedin-photo-shadow" x="-20%" y="-25%" width="140%" height="160%"><feDropShadow dx="0" dy="4" stdDeviation="5" flood-color="#160e07" flood-opacity="0.65" /></filter></defs>
       <g class="monitor-highlight" fill="none" stroke-linejoin="round" stroke-linecap="round">
@@ -204,6 +211,7 @@ const controls = new WorkspaceControls(root, icon);
 root.dataset.pageHidden = String(document.hidden);
 const terminal = document.querySelector<HTMLElement>(".terminal")!;
 const hotspot = document.querySelector<HTMLButtonElement>(".monitor-hotspot")!;
+const wallpaperToggle = root.querySelector<HTMLButtonElement>(".wallpaper-toggle")!;
 const input = document.querySelector<HTMLInputElement>("#command-input")!;
 const content = document.querySelector<HTMLElement>("#file-content")!;
 let targetView: WorkspaceView = "desk";
@@ -227,6 +235,8 @@ const scene = new WorkspaceScene(
     terminal.setAttribute("aria-hidden", String(view !== "terminal"));
     hotspot.inert = view === "terminal";
     hotspot.setAttribute("aria-hidden", String(view === "terminal"));
+    wallpaperToggle.inert = view === "terminal";
+    wallpaperToggle.setAttribute("aria-hidden", String(view === "terminal"));
     if (view === "terminal") content.focus({ preventScroll: true });
     else hotspot.focus({ preventScroll: true });
   },
@@ -235,11 +245,14 @@ const scene = new WorkspaceScene(
 function enter() {
   if (root.dataset.view === "monitor") {
     targetView = "terminal";
+    wallpaperToggle.inert = true;
+    wallpaperToggle.setAttribute("aria-hidden", "true");
     scene.go("terminal");
     return;
   }
   if (targetView !== "desk") return;
   targetView = "monitor";
+  wallpaperToggle.inert = true;
   refreshMonitorCopy();
   document.querySelectorAll<HTMLElement>(".desk-chrome").forEach((el) => {
     el.inert = true;
@@ -315,7 +328,26 @@ window.addEventListener("keydown", (event) => {
   }
 });
 
-const editor = new PortfolioEditor(icon, landscape.html, stackJson);
+const editor = new PortfolioEditor(icon, landscape.html, stackJson, wallpaper);
+function syncWallpaper() {
+  const label = wallpaper === "mountains"
+    ? t("Show sunset wallpaper", "Mostra lo sfondo tramonto")
+    : t("Show mountain wallpaper", "Mostra lo sfondo montagne");
+  wallpaperToggle.setAttribute("aria-label", label);
+  wallpaperToggle.title = label;
+  wallpaperToggle.innerHTML = `${icon(wallpaper, 15)}<span class="wallpaper-dots" aria-hidden="true"><i></i><i></i></span>`;
+}
+wallpaperToggle.addEventListener("click", () => {
+  wallpaper = wallpaper === "mountains" ? "sunset" : "mountains";
+  root.dataset.wallpaper = wallpaper;
+  const art = root.querySelector<HTMLElement>(".mountain")!;
+  const next = wallpaperLandscape(wallpaper);
+  art.innerHTML = next.html;
+  art.dataset.wallpaper = wallpaper;
+  editor.setLandscape(next.html, wallpaper);
+  try { localStorage.setItem("portfolio-wallpaper", wallpaper); } catch { /* Optional preference. */ }
+  syncWallpaper();
+});
 const renderFile = (file: string, focus = false) =>
   editor.renderFile(file, focus);
 document.addEventListener("click", (event) => {
@@ -539,6 +571,7 @@ function applyLanguage() {
   for (const [selector, value] of Object.entries(labels))
     document.querySelector(selector)?.setAttribute("aria-label", value);
   refreshMonitorCopy();
+  syncWallpaper();
   document.querySelector<HTMLImageElement>(".desk-photo")!.alt = t(
     "A cosy desk in the evening, with plants, warm lights and a green terminal monitor.",
     "Una scrivania accogliente di sera, con piante, luce calda e un monitor con terminale verde.",

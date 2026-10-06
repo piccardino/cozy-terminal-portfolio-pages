@@ -102,7 +102,7 @@ test("hover reveals the fire control, click toggles and keeps sound through moni
   expect(downloads).toEqual([]);
   await speaker.click();
   await expect(page.locator(".speaker-hotspot")).toHaveAttribute("aria-pressed", "true");
-  await expect(page.locator(".desk-header .sound-toggle")).toHaveAttribute("aria-pressed", "true");
+  await expect(page.locator(".system-sound")).toHaveAttribute("aria-pressed", "true");
   await expect.poll(() => audioState(page)).toEqual(["running"]);
   await page.mouse.move(0, 0);
   await expect(page.locator(".speaker-object-label")).toHaveCSS("opacity", "0");
@@ -166,6 +166,6 @@ test("touching the visible speaker toggles fire on a cropped portrait photo", as
   await expect.poll(() => audioState(page)).toEqual(["running"]);
   await page.touchscreen.tap(x, y);
   await expect.poll(() => audioState(page)).toEqual(["suspended"]);
-  await expect(page.locator(".desk-header .sound-toggle")).toHaveAttribute("aria-pressed", "false");
+  await expect(page.locator(".system-sound")).toHaveAttribute("aria-pressed", "false");
   await page.close();
 });

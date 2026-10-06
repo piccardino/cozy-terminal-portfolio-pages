@@ -1,5 +1,6 @@
 import { portfolio, type Project } from "./portfolio";
 import { englishProjects, language, t } from "./i18n";
+import type { Wallpaper } from "./ascii";
 
 export const fileNames: Record<string, string> = {
   welcome: "welcome.md",
@@ -36,6 +37,7 @@ export class PortfolioEditor {
     private icon: (name: string, size?: number) => string,
     private landscapeHtml: string,
     private stackJson: () => string,
+    private wallpaper: Wallpaper = "mountains",
   ) {
     document.addEventListener("click", (event) => {
       const element = (event.target as Element).closest<HTMLElement>(
@@ -66,6 +68,15 @@ export class PortfolioEditor {
       this.disclosureLabel();
     });
     this.refreshLanguage();
+  }
+  setLandscape(html: string, wallpaper: Wallpaper) {
+    this.landscapeHtml = html;
+    this.wallpaper = wallpaper;
+    const art = this.content.querySelector<HTMLElement>(".welcome-mountain");
+    if (art) {
+      art.innerHTML = html;
+      art.dataset.wallpaper = wallpaper;
+    }
   }
   private disclosureLabel() {
     const disclosure =
@@ -157,7 +168,7 @@ export class PortfolioEditor {
       : fileNames[file];
     if (original) this.content.innerHTML = this.project(localProject(original));
     else if (file === "welcome")
-      this.content.innerHTML = `<div class="document welcome-document"><span class="document-kicker">// HELLO, WORLD.</span><div class="welcome-top"><div><h2>${t("Hi, I'm", "Ciao, sono")}<br><span>${esc(portfolio.name)}<b class="cursor">_</b></span></h2><p class="welcome-role">${esc(t(portfolio.role, "Sviluppatore · esploratore creativo"))}</p></div><pre class="welcome-mountain" aria-hidden="true">${this.landscapeHtml}</pre></div><p class="document-lead">${t("Ideas, code.<br>One project at a time.", "Idee, codice.<br>Un progetto alla volta.")}</p><p class="document-text">${t("Welcome to my little corner of the internet.<br>Open a folder, explore the projects or type a command.", "Benvenuto nel mio piccolo angolo di internet.<br>Apri una cartella, dai un’occhiata ai progetti o scrivi un comando.")}</p><div class="section-line"><span>${t("FEATURED", "IN PRIMO PIANO")}</span><span>${featured.length} ${t("projects", "progetti")}</span></div>${this.cards(featured)}<div class="welcome-footer"><button class="text-button" data-file="projects">${this.icon("folder", 16)}${t(`Explore all ${portfolio.projects.length} projects`, `Esplora tutti i ${portfolio.projects.length} progetti`)}</button><p class="document-footnote"><span>tip:</span> ${t("try", "prova")} <button class="inline-command" data-command="whoami">whoami</button>.</p></div></div>`;
+      this.content.innerHTML = `<div class="document welcome-document"><span class="document-kicker">// HELLO, WORLD.</span><div class="welcome-top"><div><h2>${t("Hi, I'm", "Ciao, sono")}<br><span>${esc(portfolio.name)}<b class="cursor">_</b></span></h2><p class="welcome-role">${esc(t(portfolio.role, "Sviluppatore · esploratore creativo"))}</p></div><pre class="welcome-mountain" data-wallpaper="${this.wallpaper}" aria-hidden="true">${this.landscapeHtml}</pre></div><p class="document-lead">${t("Ideas, code.<br>One project at a time.", "Idee, codice.<br>Un progetto alla volta.")}</p><p class="document-text">${t("Welcome to my little corner of the internet.<br>Open a folder, explore the projects or type a command.", "Benvenuto nel mio piccolo angolo di internet.<br>Apri una cartella, dai un’occhiata ai progetti o scrivi un comando.")}</p><div class="section-line"><span>${t("FEATURED", "IN PRIMO PIANO")}</span><span>${featured.length} ${t("projects", "progetti")}</span></div>${this.cards(featured)}<div class="welcome-footer"><button class="text-button" data-file="projects">${this.icon("folder", 16)}${t(`Explore all ${portfolio.projects.length} projects`, `Esplora tutti i ${portfolio.projects.length} progetti`)}</button><p class="document-footnote"><span>tip:</span> ${t("try", "prova")} <button class="inline-command" data-command="whoami">whoami</button>.</p></div></div>`;
     else if (file === "about")
       this.content.innerHTML = `<article class="document"><span class="document-kicker">// ABOUT.MD</span><h2>${t("The person<br><span>behind the prompt.</span>", "La persona<br><span>dietro al prompt.</span>")}</h2><p class="document-lead">${esc(portfolio.name)}</p><p class="document-text bio">${esc(t("I like exploring where code meets experience. This is my space: ideas to try, details to care for and projects taking shape.", portfolio.bio))}</p><div class="section-line"><span>${t("MY APPROACH", "IL MIO APPROCCIO")}</span></div><div class="about-values"><div><span>01</span><h3>${t("Explore", "Esplorare")}</h3><p>${t("Start with a question. Try, observe, learn.", "Partire da una domanda. Provare, osservare, imparare.")}</p></div><div><span>02</span><h3>${t("Build", "Costruire")}</h3><p>${t("Turn an idea into something you can use.", "Trasformare un’idea in qualcosa che si può usare.")}</p></div><div><span>03</span><h3>${t("Care", "Curare")}</h3><p>${t("Give even the smallest details some attention.", "Dare attenzione anche ai dettagli più piccoli.")}</p></div></div><div class="about-links"><button class="text-button" data-file="stack">${this.icon("code", 16)} ${t("Explore the stack", "Esplora lo stack")}</button>${cvLink}</div></article>`;
     else if (file === "projects")
