@@ -31,6 +31,7 @@ export class WorkspaceScene {
   private engineReady?: Promise<void>;
   private outline: SVGElement;
   private wallpaperToggle: HTMLElement;
+  private monitorReturn: HTMLElement;
 
   constructor(
     private root: HTMLElement,
@@ -41,6 +42,7 @@ export class WorkspaceScene {
   ) {
     this.outline = root.querySelector<SVGElement>(".monitor-outline")!;
     this.wallpaperToggle = root.querySelector<HTMLElement>(".wallpaper-toggle")!;
+    this.monitorReturn = root.querySelector<HTMLElement>(".monitor-return")!;
     this.observer = new ResizeObserver(this.resize);
     this.observer.observe(root);
     document.addEventListener("visibilitychange", this.visibility);
@@ -364,6 +366,8 @@ export class WorkspaceScene {
     const inset = Math.max(7, Math.min(14, rect.width * 0.018));
     this.wallpaperToggle.style.left = `${rect.left + rect.width - inset}px`;
     this.wallpaperToggle.style.top = `${rect.top + rect.height - inset}px`;
+    this.monitorReturn.style.left = `${rect.left + inset}px`;
+    this.monitorReturn.style.top = `${rect.top + rect.height - inset}px`;
     this.root.style.setProperty("--journey", String(p));
     this.root.style.setProperty(
       "--desk-opacity",

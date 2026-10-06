@@ -173,6 +173,7 @@ document.querySelector<HTMLDivElement>("#app")!.innerHTML = `
       <div class="crt-overlay" aria-hidden="true"></div>
     </div>
     <button class="wallpaper-toggle" type="button"></button>
+    <button class="monitor-return" type="button" aria-hidden="true" inert>${icon("back", 16)}<span>SCRIVANIA</span><kbd>ESC</kbd></button>
     <svg class="monitor-outline" viewBox="0 0 ${sceneConfig.photo.width} ${sceneConfig.photo.height}" aria-hidden="true">
       <defs><clipPath id="speaker-hit-clip" clipPathUnits="objectBoundingBox"><path d="${sceneConfig.speakerObject.clipPath}" /></clipPath><clipPath id="cv-mug-hit-clip" clipPathUnits="objectBoundingBox"><path d="${sceneConfig.cvObject.clipPath}" clip-rule="evenodd" fill-rule="evenodd" /></clipPath><filter id="monitor-edge-glow" x="-15%" y="-25%" width="130%" height="150%"><feGaussianBlur stdDeviation="9" /></filter><clipPath id="linkedin-photo-clip"><path d="${sceneConfig.linkedinObject.outline}" /></clipPath><filter id="linkedin-photo-shadow" x="-20%" y="-25%" width="140%" height="160%"><feDropShadow dx="0" dy="4" stdDeviation="5" flood-color="#160e07" flood-opacity="0.65" /></filter></defs>
       <g class="monitor-highlight" fill="none" stroke-linejoin="round" stroke-linecap="round">
@@ -212,6 +213,7 @@ root.dataset.pageHidden = String(document.hidden);
 const terminal = document.querySelector<HTMLElement>(".terminal")!;
 const hotspot = document.querySelector<HTMLButtonElement>(".monitor-hotspot")!;
 const wallpaperToggle = root.querySelector<HTMLButtonElement>(".wallpaper-toggle")!;
+const monitorReturn = root.querySelector<HTMLButtonElement>(".monitor-return")!;
 const input = document.querySelector<HTMLInputElement>("#command-input")!;
 const content = document.querySelector<HTMLElement>("#file-content")!;
 let targetView: WorkspaceView = "desk";
@@ -237,6 +239,8 @@ const scene = new WorkspaceScene(
     hotspot.setAttribute("aria-hidden", String(view === "terminal"));
     wallpaperToggle.inert = view === "terminal";
     wallpaperToggle.setAttribute("aria-hidden", String(view === "terminal"));
+    monitorReturn.inert = view !== "monitor";
+    monitorReturn.setAttribute("aria-hidden", String(view !== "monitor"));
     if (view === "terminal") content.focus({ preventScroll: true });
     else hotspot.focus({ preventScroll: true });
   },
@@ -264,6 +268,7 @@ function enter() {
 }
 function leave() {
   if (targetView === "desk") return;
+  monitorReturn.inert = true;
   targetView = "desk";
   refreshMonitorCopy();
   terminal.inert = true;
@@ -298,6 +303,7 @@ for (const target of [hotspot, monitorHitTarget]) {
 }
 document.querySelector("#mobile-enter")!.addEventListener("click", enter);
 document.querySelector(".return-button")!.addEventListener("click", leave);
+monitorReturn.addEventListener("click", leave);
 window.addEventListener("keydown", (event) => {
   // Let the native dialog handle Escape and keep the current workspace view.
   if (cv.isOpen) return;
@@ -515,6 +521,7 @@ function applyLanguage() {
       "IN ASCOLTO<br>fuoco scoppiettante<br><span>// un po’ di calma</span>",
     ),
     ".return-button span": t("DESK", "SCRIVANIA"),
+    ".monitor-return span": t("DESK", "SCRIVANIA"),
     ".explorer-bottom > span": t("A LITTLE CURIOSITY.", "UN PO’ DI CURIOSITÀ."),
     ".explorer-bottom p": t(
       "One project at a time.",
@@ -560,6 +567,7 @@ function applyLanguage() {
     ),
     ".terminal": t("Terminal portfolio", "Portfolio nel terminale"),
     ".return-button": t("Return to desk", "Torna alla scrivania"),
+    ".monitor-return": t("Return to desk", "Torna alla scrivania"),
     ".file-tree": t("Portfolio files", "File del portfolio"),
     ".command-terminal": t("Interactive shell", "Shell interattiva"),
     "#command-input": t("Terminal command", "Comando terminale"),

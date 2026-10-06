@@ -377,6 +377,36 @@ time {
   visibility: hidden;
   pointer-events: none;
 }
+.monitor-return {
+  position: absolute;
+  z-index: 6;
+  transform: translateY(-100%);
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  height: 36px;
+  padding: 0 10px;
+  border: 1px solid #4bb58c4d;
+  border-radius: 4px;
+  color: #8eddb8;
+  background: #04150fea;
+  font-size: 10px;
+  letter-spacing: 0.5px;
+}
+.monitor-return:hover,
+.monitor-return:focus-visible {
+  color: #b9ffe0;
+  border-color: #8eddb8;
+}
+.monitor-return kbd {
+  padding: 2px 3px;
+  font-size: 8px;
+  opacity: 0.7;
+}
+.workspace:not([data-view="monitor"]) .monitor-return {
+  visibility: hidden;
+  pointer-events: none;
+}
 .mini-system {
   border-left: 1px solid #38e3a360;
   padding-left: 16px;
