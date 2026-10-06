@@ -167,7 +167,7 @@ document.querySelector<HTMLDivElement>("#app")!.innerHTML = `
       <div class="crt-overlay" aria-hidden="true"></div>
     </div>
     <svg class="monitor-outline" viewBox="0 0 ${sceneConfig.photo.width} ${sceneConfig.photo.height}" aria-hidden="true">
-      <defs><clipPath id="cv-mug-hit-clip" clipPathUnits="objectBoundingBox"><path d="${sceneConfig.cvObject.clipPath}" clip-rule="evenodd" fill-rule="evenodd" /></clipPath><filter id="monitor-edge-glow" x="-15%" y="-25%" width="130%" height="150%"><feGaussianBlur stdDeviation="9" /></filter><clipPath id="linkedin-photo-clip"><path d="${sceneConfig.linkedinObject.outline}" /></clipPath><filter id="linkedin-photo-shadow" x="-20%" y="-25%" width="140%" height="160%"><feDropShadow dx="0" dy="4" stdDeviation="5" flood-color="#160e07" flood-opacity="0.65" /></filter></defs>
+      <defs><clipPath id="speaker-hit-clip" clipPathUnits="objectBoundingBox"><path d="${sceneConfig.speakerObject.clipPath}" /></clipPath><clipPath id="cv-mug-hit-clip" clipPathUnits="objectBoundingBox"><path d="${sceneConfig.cvObject.clipPath}" clip-rule="evenodd" fill-rule="evenodd" /></clipPath><filter id="monitor-edge-glow" x="-15%" y="-25%" width="130%" height="150%"><feGaussianBlur stdDeviation="9" /></filter><clipPath id="linkedin-photo-clip"><path d="${sceneConfig.linkedinObject.outline}" /></clipPath><filter id="linkedin-photo-shadow" x="-20%" y="-25%" width="140%" height="160%"><feDropShadow dx="0" dy="4" stdDeviation="5" flood-color="#160e07" flood-opacity="0.65" /></filter></defs>
       <g class="monitor-highlight" fill="none" stroke-linejoin="round" stroke-linecap="round">
         <path class="monitor-halo" d="${sceneConfig.monitorOutline}" filter="url(#monitor-edge-glow)" />
         <path class="monitor-edge" d="${sceneConfig.monitorOutline}" />
@@ -183,10 +183,15 @@ document.querySelector<HTMLDivElement>("#app")!.innerHTML = `
         <path class="monitor-halo" d="${sceneConfig.cvObject.outline}" filter="url(#monitor-edge-glow)" />
         <path class="monitor-edge" d="${sceneConfig.cvObject.outline}" />
       </g>
+      <g class="speaker-highlight" fill="none" stroke-linejoin="round" stroke-linecap="round">
+        <path class="monitor-halo" d="${sceneConfig.speakerObject.outline}" filter="url(#monitor-edge-glow)" />
+        <path class="monitor-edge" d="${sceneConfig.speakerObject.outline}" />
+      </g>
       <path class="monitor-hit-target" d="${sceneConfig.monitorOutline}" fill="transparent" />
     </svg>
     <a class="linkedin-hotspot desk-chrome" href="${portfolio.linkedin}" target="_blank" rel="noopener noreferrer" aria-label="LinkedIn di Alex Morra — fotografia sulla bacheca"><span class="linkedin-object-label">${icon("linkedin", 18)}<span>Alex Morra<small>LINKEDIN</small></span></span></a>
     <button class="cv-hotspot desk-chrome" data-open-cv><span class="cv-object-label">${icon("file", 17)}<span>Alex Morra<small>VIEW MY CV</small></span></span></button>
+    <button class="speaker-hotspot desk-chrome" aria-pressed="false"><span class="speaker-object-label"></span></button>
     <button class="monitor-hotspot" aria-label="Entra nel terminale ed esplora il portfolio"></button>
     <footer class="desk-footer desk-chrome"><div class="desk-intro"><span class="eyebrow"><i></i> CODICE, CURIOSITÀ E CAFFÈ.</span><h1>Accomodati.<br><em>Sei nel mio spazio.</em></h1><p>Ogni progetto comincia da qui.</p></div><div class="desk-guide"><span class="guide-number">01 <i>/</i> 02</span><span>La scrivania è solo l’inizio.<br><b>Clicca sul monitor per esplorare.</b></span><div class="guide-key"><kbd>ENTER</kbd><span>per entrare</span></div></div></footer>
     <div class="mobile-entry desk-chrome"><button id="mobile-enter">Entra nel workspace <kbd>↵</kbd></button></div>
@@ -566,6 +571,18 @@ function applyLanguage() {
 const fire = new FireAudio();
 function syncSound() {
   root.classList.toggle("sound-on", fire.enabled);
+  const speaker = root.querySelector<HTMLButtonElement>(".speaker-hotspot")!;
+  speaker.disabled = fire.busy;
+  speaker.setAttribute("aria-busy", String(fire.busy));
+  speaker.setAttribute("aria-pressed", String(fire.enabled));
+  speaker.setAttribute("aria-label", fire.enabled
+    ? t("Left speaker: turn fire sound off", "Speaker sinistro: spegni il suono del fuoco")
+    : t("Left speaker: turn fire sound on", "Speaker sinistro: accendi il suono del fuoco"));
+  const speakerLabel = fire.busy
+    ? t("LOADING…", "CARICAMENTO…")
+    : fire.enabled ? t("FIRE ON", "FUOCO ON") : t("FIRE OFF", "FUOCO OFF");
+  const speakerHint = fire.enabled ? t("CLICK TO MUTE", "CLICCA PER SPEGNERE") : t("CLICK TO PLAY", "CLICCA PER ACCENDERE");
+  speaker.querySelector(".speaker-object-label")!.innerHTML = `${icon(fire.enabled ? "sound" : "mute", 18)}<span>${speakerLabel}<small>${speakerHint}</small></span>`;
   document
     .querySelectorAll<HTMLButtonElement>(".sound-toggle")
     .forEach((el) => {
@@ -609,7 +626,7 @@ async function toggleSound() {
   }
 }
 document
-  .querySelectorAll(".sound-toggle")
+  .querySelectorAll(".sound-toggle, .speaker-hotspot")
   .forEach((el) => el.addEventListener("click", toggleSound));
 document.addEventListener("visibilitychange", () => {
   root.dataset.pageHidden = String(document.hidden);

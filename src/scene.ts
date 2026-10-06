@@ -162,6 +162,8 @@ export class WorkspaceScene {
         [".linkedin-highlight path, #linkedin-photo-clip path", sceneConfig.linkedinObject.outline],
         [".cv-highlight path", sceneConfig.cvObject.outline],
         ["#cv-mug-hit-clip path", sceneConfig.cvObject.clipPath],
+        [".speaker-highlight path", sceneConfig.speakerObject.outline],
+        ["#speaker-hit-clip path", sceneConfig.speakerObject.clipPath],
       ]) svg.querySelectorAll(selector).forEach(el => el.setAttribute("d", path));
       const image = svg.querySelector("image")!;
       image.setAttribute("href", sceneConfig.photo.src);
@@ -186,6 +188,7 @@ export class WorkspaceScene {
     for (const [selector, b] of [
       [".linkedin-hotspot", sceneConfig.linkedinObject.bounds],
       [".cv-hotspot", sceneConfig.cvObject.bounds],
+      [".speaker-hotspot", sceneConfig.speakerObject.bounds],
     ] as const) {
       const object = this.root.querySelector<HTMLElement>(selector)!;
       Object.assign(object.style, {
@@ -194,6 +197,11 @@ export class WorkspaceScene {
         width: `${(b.right - b.left) * scale}px`,
         height: `${(b.bottom - b.top) * scale}px`,
       });
+      if (selector === ".speaker-hotspot") {
+        // Keep the caption readable when object-fit crops the left speaker.
+        const left = (w - photoW) / 2 + b.left * scale;
+        object.style.setProperty("--speaker-label-left", `${Math.max(8 - left, (b.right - b.left) * scale * 0.04)}px`);
+      }
     }
     this.renderer?.setSize(w, h);
     this.draw();

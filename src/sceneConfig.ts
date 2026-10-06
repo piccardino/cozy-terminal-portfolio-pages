@@ -7,6 +7,20 @@ const mugSilhouette =
   "M1429 631 C1434 617 1550 617 1557 632 C1560 636 1561 641 1561 650 C1590 651 1608 667 1608 696 C1608 725 1596 747 1560 752 L1559 763 C1558 781 1434 782 1429 761 L1427 641 Q1427 635 1429 631 Z " +
   "M1560 670 C1566 659 1586 659 1593 680 C1600 703 1587 740 1570 740 Q1561 740 1560 733 Q1559 706 1560 670 Z";
 const mugRim = "M1428 631 C1447 642 1536 644 1558 637";
+function speakerObject(
+  bounds: { left: number; top: number; right: number; bottom: number },
+  outline: string,
+  silhouette = outline,
+) {
+  let axis = 0;
+  const clipPath = silhouette.replace(/\d+(?:\.\d+)?/g, value => {
+    const horizontal = axis++ % 2 === 0;
+    const origin = horizontal ? bounds.left : bounds.top;
+    const size = horizontal ? bounds.right - bounds.left : bounds.bottom - bounds.top;
+    return ((Number(value) - origin) / size).toFixed(5);
+  });
+  return { bounds, outline, clipPath };
+}
 // Absolute XY commands let the glow and HTML hit area share the same curves.
 let coordinate = 0;
 const mugClipPath = mugSilhouette.replace(/\d+(?:\.\d+)?/g, (value) => {
@@ -41,6 +55,10 @@ export const sceneConfig = {
     outline: `${mugSilhouette} ${mugRim}`,
     clipPath: mugClipPath,
   },
+  speakerObject: speakerObject(
+    { left: 253, top: 432, right: 395, bottom: 631 },
+    "M268 433 L383 433 Q395 433 395 445 L395 604 L369 623 Q367 630 357 630 L264 631 Q253 631 253 619 L253 448 Q253 436 268 433 Z",
+  ),
   camera: { fov: 42, near: 0.05, far: 80 },
   cameraTarget: { x: 0, y: 0, z: 0 },
   zoomTarget: { fov: 34, screenCoverage: 0.92 },
@@ -95,6 +113,17 @@ export function selectPhoto(width: number, height: number) {
     return ((Number(value) - mug[horizontal ? 0 : 1]) / (mug[horizontal ? 2 : 3] - mug[horizontal ? 0 : 1])).toFixed(5);
   });
   sceneConfig.cvObject = { bounds: bounds(mug), outline: `${silhouette} ${rim}`, clipPath };
+  sceneConfig.speakerObject = portrait
+    ? speakerObject(
+      { left: 57, top: 835, right: 160, bottom: 984 },
+      // The camera hides the bottom left: trace only the visible cabinet edges.
+      "M58 955 L58 850 Q58 841 67 838 L150 835 Q160 835 160 845 L160 965 L144 982 L126 984",
+      "M58 955 L58 850 Q58 841 67 838 L150 835 Q160 835 160 845 L160 965 L144 982 L126 984 L126 974 L108 972 L104 964 L81 959 L74 955 Z",
+    )
+    : speakerObject(
+      { left: 718, top: 323, right: 827, bottom: 465 },
+      "M728 323 L813 323 Q827 323 827 333 L827 445 L807 459 Q805 465 798 465 L726 465 Q718 465 718 455 L718 333 Q718 324 728 323 Z",
+    );
   return true;
 }
 

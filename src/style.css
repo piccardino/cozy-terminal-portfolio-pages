@@ -406,7 +406,8 @@ time {
   pointer-events: none;
 }
 .linkedin-highlight,
-.cv-highlight {
+.cv-highlight,
+.speaker-highlight {
   opacity: 0.7;
   transition: opacity 0.5s ease;
   pointer-events: none;
@@ -498,14 +499,30 @@ time {
     opacity: 1;
   }
 }
-.cv-hotspot {
+.cv-hotspot,
+.speaker-hotspot {
   position: absolute;
   z-index: 6;
   padding: 0;
   border: 0;
+}
+.cv-hotspot {
   clip-path: url(#cv-mug-hit-clip);
 }
-.cv-hotspot:focus-visible {
+.speaker-hotspot {
+  pointer-events: none;
+  container-type: inline-size;
+  container-name: left-speaker;
+}
+.speaker-hotspot::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  clip-path: url(#speaker-hit-clip);
+  pointer-events: auto;
+}
+.cv-hotspot:focus-visible,
+.speaker-hotspot:focus-visible {
   outline: none;
 }
 .cv-object-label {
@@ -539,6 +556,58 @@ time {
 .cv-hotspot:focus-visible .cv-object-label {
   opacity: 1;
 }
+.speaker-object-label {
+  position: absolute;
+  left: var(--speaker-label-left, 4%);
+  top: 38%;
+  width: 80%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  padding: 10% 4%;
+  background: #261c12ed;
+  border: 1px solid #e8be8240;
+  border-radius: 3px;
+  color: #f1d7ae;
+  font-size: clamp(7px, 8cqi, 12px);
+  text-align: center;
+  opacity: 0;
+  transition: opacity 0.4s ease;
+  pointer-events: none;
+}
+.speaker-object-label svg {
+  width: clamp(12px, 16cqi, 20px);
+  height: clamp(12px, 16cqi, 20px);
+}
+.speaker-object-label small {
+  display: block;
+  margin-top: 4px;
+  font-size: clamp(6px, 6cqi, 9px);
+  line-height: 1.4;
+  color: #ceb184;
+}
+.speaker-object-label > span {
+  max-width: 100%;
+  overflow-wrap: anywhere;
+}
+@container left-speaker (max-width: 75px) {
+  .speaker-object-label {
+    top: 30%;
+    gap: 3px;
+    padding: 8% 4%;
+    font-size: clamp(6px, 12cqi, 9px);
+  }
+  .speaker-object-label small {
+    display: none;
+  }
+}
+.workspace[data-view="desk"]:has(.speaker-hotspot:hover) .speaker-highlight,
+.workspace[data-view="desk"]:has(.speaker-hotspot:focus-visible) .speaker-highlight,
+.speaker-hotspot:hover .speaker-object-label,
+.speaker-hotspot:focus-visible .speaker-object-label {
+  opacity: 1;
+}
 .monitor-halo {
   stroke: #e4a665;
   stroke-width: 9;
@@ -559,12 +628,14 @@ time {
   stroke-width: 0.8;
   opacity: 0.23;
 }
-.cv-highlight .monitor-halo {
+.cv-highlight .monitor-halo,
+.speaker-highlight .monitor-halo {
   stroke-width: 7;
   opacity: 0.38;
 }
 .linkedin-highlight .monitor-edge,
-.cv-highlight .monitor-edge {
+.cv-highlight .monitor-edge,
+.speaker-highlight .monitor-edge {
   stroke-width: 1.5;
   opacity: 0.85;
 }
