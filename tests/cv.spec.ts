@@ -108,6 +108,8 @@ test("CV is reachable on mobile, localised, and closes without leaving the termi
   await page.goto("/");
   await page.locator('.desk-header [data-language="it"]').click();
   await page.locator("#mobile-enter").click();
+  await expect(page.locator(".workspace")).toHaveAttribute("data-view", "monitor");
+  await page.keyboard.press("Enter");
   await expect(page.locator(".workspace")).toHaveAttribute(
     "data-view",
     "terminal",

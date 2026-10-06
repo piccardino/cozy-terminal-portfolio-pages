@@ -8,22 +8,31 @@ test("mug hover follows its body and handle, excluding the hole and surrounding 
     { width: 1920, height: 1080 },
     { width: 1440, height: 900 },
     { width: 1280, height: 720 },
+    { width: 941, height: 1672 },
   ]) {
     await page.setViewportSize(viewport);
     const wide = viewport.width / viewport.height >= 16 / 9;
-    const photo = wide ? { width: 2365, height: 665 } : { width: 1672, height: 941 };
+    const portrait = viewport.width < viewport.height;
+    const photo = portrait ? { width: 941, height: 1672 }
+      : wide ? { width: 2365, height: 665 } : { width: 1672, height: 941 };
     const scale = Math.max(viewport.width / photo.width, viewport.height / photo.height);
     const offsetX = (viewport.width - photo.width * scale) / 2;
     const offsetY = (viewport.height - photo.height * scale) / 2;
     await expect.poll(async () => (await page.locator(".cv-hotspot").boundingBox())!.width)
-      .toBeCloseTo((wide ? 133 : 181) * scale, 0);
+      .toBeCloseTo((portrait ? 133 : wide ? 135 : 182) * scale, 0);
     const screen = await page.locator(".monitor-surface").boundingBox();
-    const points = wide ? [
+    const points = portrait ? [
+      [858, 1130, true], [861, 1067, true], [815, 1120, true], [939, 1130, true],
+      [922, 1130, false], [914, 1135, false],
+      [804, 1120, false], [861, 1060, false], [855, 1190, false], [948, 1130, false],
+    ] as const : wide ? [
+      [1657, 457, true],
       [1660, 500, true], [1640, 464, true], [1615, 515, true],
       [1735, 510, true], [1725, 540, true],
       [1719, 510, false], [1713, 528, false],
       [1604, 510, false], [1660, 451, false], [1660, 575, false], [1747, 510, false],
     ] as const : [
+      [1492, 621, true],
       [1495, 700, true], [1490, 628, true], [1430, 710, true],
       [1558, 708, true], [1604, 695, true],
       [1580, 695, false], [1563, 710, false],
@@ -45,6 +54,8 @@ test("mug hover follows its body and handle, excluding the hole and surrounding 
 test("project folder icons keep square dimensions on desktop, short screens and mobile", async ({ page }) => {
   await page.emulateMedia({ reducedMotion: "reduce" });
   await page.goto("/");
+  await page.keyboard.press("Enter");
+  await expect(page.locator(".workspace")).toHaveAttribute("data-view", "monitor");
   await page.keyboard.press("Enter");
   await expect(page.locator(".workspace")).toHaveAttribute("data-view", "terminal");
   await page.locator('.editor-tabs [data-file="projects"]').click();

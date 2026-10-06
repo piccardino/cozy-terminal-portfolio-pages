@@ -4,9 +4,11 @@ import type { Page } from "@playwright/test";
 async function enter(page: Page) {
   await page
     .getByRole("button", {
-      name: "Enter the terminal and explore the portfolio",
+      name: "Move closer to the monitor",
     })
     .click();
+  await expect(page.locator(".workspace")).toHaveAttribute("data-view", "monitor");
+  await page.getByRole("button", { name: "Enter the terminal and explore the portfolio" }).click();
   await expect(page.locator(".workspace")).toHaveAttribute(
     "data-view",
     "terminal",
@@ -86,6 +88,32 @@ test("camera matches the photograph, zooms into the framed monitor, pauses, and 
   );
   await expect(page.locator(".monitor-hotspot")).toBeFocused();
   expect(errors).toEqual([]);
+});
+
+test("the close-up waits through held Enter and resizing until a second activation", async ({ page }) => {
+  await page.goto("/");
+  await page.keyboard.down("Enter");
+  await expect(page.locator(".workspace")).toHaveAttribute("data-view", "monitor");
+  await expect(page.locator(".mini-screen")).toHaveCSS("opacity", "1");
+  await expect(page.locator(".terminal")).toHaveAttribute("aria-hidden", "true");
+  await expect(page.locator(".terminal")).toHaveJSProperty("inert", true);
+  await expect(page.locator(".monitor-hotspot")).toBeFocused();
+  // A repeated keydown after the camera settles must not count as a fresh press.
+  await page.keyboard.down("Enter");
+  await page.setViewportSize({ width: 1920, height: 1080 });
+  await expect(page.locator(".desk-photo")).toHaveAttribute("src", /workspace-wide.webp$/);
+  await expect(page.locator(".workspace")).toHaveAttribute("data-view", "monitor");
+  await page.keyboard.up("Enter");
+  await expect(page.locator(".workspace")).toHaveAttribute("data-view", "monitor");
+  await expect(page.locator(".terminal")).toHaveCSS("opacity", "0");
+  const close = await page.locator(".monitor-surface").boundingBox();
+  await page.screenshot({ path: ".local/monitor-preview-close.png" });
+  await page.getByRole("button", { name: "Enter the terminal and explore the portfolio" }).click();
+  await expect(page.locator(".workspace")).toHaveAttribute("data-view", "terminal");
+  expect(await page.locator(".monitor-surface").boundingBox()).toEqual(close);
+  await expect(page.locator("#file-content")).toBeFocused();
+  await page.keyboard.press("Escape");
+  await expect(page.locator(".workspace")).toHaveAttribute("data-view", "desk");
 });
 
 test("hover keeps the display stationary and lights the complete monitor including its base", async ({
@@ -446,6 +474,8 @@ test("mobile uses CSS and keeps navigation and content inside the viewport", asy
   );
   await page.screenshot({ path: ".local/desk-mobile.png" });
   await page.locator("#mobile-enter").click();
+  await expect(page.locator(".workspace")).toHaveAttribute("data-view", "monitor");
+  await page.keyboard.press("Enter");
   await expect(page.locator(".workspace")).toHaveAttribute(
     "data-view",
     "terminal",
@@ -468,6 +498,8 @@ test("reduced motion skips WebGL and supports a keyboard-only round trip", async
 }) => {
   await page.emulateMedia({ reducedMotion: "reduce" });
   await page.goto("/");
+  await page.keyboard.press("Enter");
+  await expect(page.locator(".workspace")).toHaveAttribute("data-view", "monitor");
   await page.keyboard.press("Enter");
   await expect(page.locator(".workspace")).toHaveAttribute(
     "data-view",
@@ -535,6 +567,8 @@ test("resizing in the terminal and interrupting a transition keep the scene usab
   await page.keyboard.press("Escape");
   await expect(page.locator(".workspace")).toHaveAttribute("data-view", "desk");
   await page.locator("#mobile-enter").click();
+  await expect(page.locator(".workspace")).toHaveAttribute("data-view", "monitor");
+  await page.keyboard.press("Enter");
   await expect(page.locator(".workspace")).toHaveAttribute(
     "data-view",
     "terminal",

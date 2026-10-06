@@ -20,7 +20,9 @@ test("supplied photos and calibrated objects follow aspect ratio and live resizi
     await expect(page.locator(".linkedin-highlight")).toHaveCSS("opacity", "0.7");
     await expect(page.locator(".cv-highlight")).toHaveCSS("opacity", "0.7");
     await page.mouse.click(geometry.x, geometry.y);
-    await expect(page.locator(".workspace")).toHaveAttribute("data-view", "terminal");
+    await expect(page.locator(".workspace")).toHaveAttribute("data-view", "monitor");
+    await expect(page.locator(".mini-screen")).toHaveCSS("opacity", "1");
+    await expect(page.locator(".terminal")).toHaveCSS("opacity", "0");
     const close = (await page.locator(".monitor-surface").boundingBox())!;
     expect(close.height).toBeGreaterThan(original.height * 1.5);
     expect(close.y).toBeGreaterThan(10);
@@ -37,6 +39,9 @@ test("supplied photos and calibrated objects follow aspect ratio and live resizi
     await expect(page.locator(".linkedin-highlight")).toHaveCSS("opacity", "0.7");
     await expect(page.locator(".cv-highlight")).toHaveCSS("opacity", "0.7");
     await page.screenshot({ path: `.local/monitor-close-${image}-${width}.png`, animations: "disabled" });
+    await page.keyboard.press("Enter");
+    await expect(page.locator(".workspace")).toHaveAttribute("data-view", "terminal");
+    expect(await page.locator(".monitor-surface").boundingBox()).toEqual(close);
     await page.keyboard.press("Escape");
     await expect(page.locator(".workspace")).toHaveAttribute("data-view", "desk");
     await page.locator(".cv-hotspot").click();

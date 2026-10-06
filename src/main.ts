@@ -3,6 +3,7 @@ import { portfolio } from "./portfolio";
 import type { Project } from "./portfolio";
 import { PortfolioEditor, fileNames } from "./editor";
 import { WorkspaceScene } from "./scene";
+import type { WorkspaceView } from "./scene";
 import { sceneConfig } from "./sceneConfig";
 import { asset } from "./assets";
 import {
@@ -200,7 +201,16 @@ const terminal = document.querySelector<HTMLElement>(".terminal")!;
 const hotspot = document.querySelector<HTMLButtonElement>(".monitor-hotspot")!;
 const input = document.querySelector<HTMLInputElement>("#command-input")!;
 const content = document.querySelector<HTMLElement>("#file-content")!;
-let targetView: "desk" | "terminal" = "desk";
+let targetView: WorkspaceView = "desk";
+
+function refreshMonitorCopy() {
+  hotspot.setAttribute("aria-label", targetView === "desk"
+    ? t("Move closer to the monitor", "Avvicinati al monitor")
+    : t("Enter the terminal and explore the portfolio", "Entra nel terminale ed esplora il portfolio"));
+  document.querySelector(".mini-enter")!.textContent = targetView === "desk"
+    ? t("[ click to look closer ]", "[ clicca per avvicinarti ]")
+    : t("[ click or press Enter ]", "[ clicca o premi Invio ]");
+}
 
 const scene = new WorkspaceScene(
   root,
@@ -210,25 +220,34 @@ const scene = new WorkspaceScene(
   (view) => {
     terminal.inert = view !== "terminal";
     terminal.setAttribute("aria-hidden", String(view !== "terminal"));
+    hotspot.inert = view === "terminal";
+    hotspot.setAttribute("aria-hidden", String(view === "terminal"));
     if (view === "terminal") content.focus({ preventScroll: true });
     else hotspot.focus({ preventScroll: true });
   },
 );
 
 function enter() {
-  if (targetView === "terminal") return;
-  targetView = "terminal";
+  if (root.dataset.view === "monitor") {
+    targetView = "terminal";
+    scene.go("terminal");
+    return;
+  }
+  if (targetView !== "desk") return;
+  targetView = "monitor";
+  refreshMonitorCopy();
   document.querySelectorAll<HTMLElement>(".desk-chrome").forEach((el) => {
     el.inert = true;
     el.setAttribute("aria-hidden", "true");
   });
   hotspot.inert = true;
   hotspot.setAttribute("aria-hidden", "true");
-  scene.go("terminal");
+  scene.go("monitor");
 }
 function leave() {
   if (targetView === "desk") return;
   targetView = "desk";
+  refreshMonitorCopy();
   terminal.inert = true;
   terminal.setAttribute("aria-hidden", "true");
   scene.go("desk");
@@ -246,7 +265,8 @@ const monitorHitTarget = document.querySelector<SVGPathElement>(
 monitorHitTarget.addEventListener("click", enter);
 for (const target of [hotspot, monitorHitTarget]) {
   target.addEventListener("pointerenter", () => {
-    if (targetView === "desk") root.classList.add("monitor-hovered");
+    if (targetView === "desk" || root.dataset.view === "monitor")
+      root.classList.add("monitor-hovered");
   });
   target.addEventListener("pointerleave", (event) => {
     const next = (event as PointerEvent).relatedTarget;
@@ -263,6 +283,11 @@ document.querySelector(".return-button")!.addEventListener("click", leave);
 window.addEventListener("keydown", (event) => {
   // Let the native dialog handle Escape and keep the current workspace view.
   if (cv.isOpen) return;
+  // Holding Enter through the zoom must not open the terminal automatically.
+  if (event.key === "Enter" && event.repeat && targetView !== "terminal") {
+    event.preventDefault();
+    return;
+  }
   if (event.key === "Escape") {
     if (document.fullscreenElement) {
       event.preventDefault();
@@ -274,9 +299,11 @@ window.addEventListener("keydown", (event) => {
   }
   if (
     event.key === "Enter" &&
-    targetView === "desk" &&
+    (targetView === "desk" || root.dataset.view === "monitor") &&
     !(event.target instanceof HTMLButtonElement) &&
-    !(event.target instanceof HTMLAnchorElement)
+    !(event.target instanceof HTMLAnchorElement) &&
+    !(event.target instanceof HTMLInputElement) &&
+    !(event.target instanceof HTMLTextAreaElement)
   ) {
     event.preventDefault();
     enter();
@@ -446,7 +473,6 @@ function applyLanguage() {
   const copy: Record<string, string> = {
     ".wordmark small": t("PERSONAL WORKSPACE", "WORKSPACE PERSONALE"),
     ".country-label": t("ITALY", "ITALIA"),
-    ".mini-enter": t("[ click to enter ]", "[ clicca per entrare ]"),
     ".mini-playing": t(
       "NOW PLAYING<br>crackling fire<br><span>// a calmer mind</span>",
       "IN ASCOLTO<br>fuoco scoppiettante<br><span>// un po’ di calma</span>",
@@ -504,13 +530,10 @@ function applyLanguage() {
       "Alex Morra on LinkedIn — mountain photograph on the board",
       "LinkedIn di Alex Morra — fotografia sulla bacheca",
     ),
-    ".monitor-hotspot": t(
-      "Enter the terminal and explore the portfolio",
-      "Entra nel terminale ed esplora il portfolio",
-    ),
   };
   for (const [selector, value] of Object.entries(labels))
     document.querySelector(selector)?.setAttribute("aria-label", value);
+  refreshMonitorCopy();
   document.querySelector<HTMLImageElement>(".desk-photo")!.alt = t(
     "A cosy desk in the evening, with plants, warm lights and a green terminal monitor.",
     "Una scrivania accogliente di sera, con piante, luce calda e un monitor con terminale verde.",

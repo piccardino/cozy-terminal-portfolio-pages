@@ -22,4 +22,4 @@ Le immagini fornite sono ottimizzate in WebP: panoramica per tutti i rapporti da
 
 Le calibrazioni sono in `src/sceneConfig.ts`; nome, contatti e progetti in `src/portfolio.ts` e `src/workProjects.ts`; traduzioni in `src/i18n.ts` e competenze in `src/stack.json`.
 
-Il monitor apre il terminale, la foto delle montagne apre LinkedIn e la tazza apre il CV. Enter entra nel terminale; Escape torna alla scrivania. Sono disponibili EN/IT, schermo intero e audio del camino.
+Clic o Invio avvicinano il monitor e mantengono visibile la sua schermata; un secondo clic o Invio aprono il terminale. Escape torna alla scrivania. La foto delle montagne apre LinkedIn e la tazza apre il CV. Sono disponibili EN/IT, schermo intero e audio del camino.

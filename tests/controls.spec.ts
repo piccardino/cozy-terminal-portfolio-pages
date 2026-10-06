@@ -15,9 +15,11 @@ test("fullscreen controls follow the browser state, work in both views and chang
   }
   await page
     .getByRole("button", {
-      name: "Enter the terminal and explore the portfolio",
+      name: "Move closer to the monitor",
     })
     .click();
+  await expect(page.locator(".workspace")).toHaveAttribute("data-view", "monitor");
+  await page.keyboard.press("Enter");
   await expect(page.locator(".workspace")).toHaveAttribute(
     "data-view",
     "terminal",
@@ -173,6 +175,8 @@ test("fullscreen controls fit narrow mobile headers", async ({ page }) => {
       .getByRole("button", { name: "Exit fullscreen", exact: true })
       .click();
     await page.locator("#mobile-enter").click();
+    await expect(page.locator(".workspace")).toHaveAttribute("data-view", "monitor");
+    await page.keyboard.press("Enter");
     await expect(page.locator(".workspace")).toHaveAttribute(
       "data-view",
       "terminal",

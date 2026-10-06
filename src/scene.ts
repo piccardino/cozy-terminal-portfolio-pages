@@ -4,7 +4,7 @@ import type { ScreenRect } from "./sceneConfig";
 import type * as THREE from "three";
 
 type Three = typeof THREE;
-type View = "desk" | "terminal";
+export type WorkspaceView = "desk" | "monitor" | "terminal";
 
 export class WorkspaceScene {
   private three?: Three;
@@ -36,7 +36,7 @@ export class WorkspaceScene {
     private photo: HTMLImageElement,
     private screen: HTMLElement,
     private hotspot: HTMLButtonElement,
-    private onSettled: (view: View) => void,
+    private onSettled: (view: WorkspaceView) => void,
   ) {
     this.outline = root.querySelector<SVGElement>(".monitor-outline")!;
     this.observer = new ResizeObserver(this.resize);
@@ -221,12 +221,19 @@ export class WorkspaceScene {
     this.applyFallback();
   };
 
-  go(view: View) {
+  go(view: WorkspaceView) {
     this.tween?.kill();
-    this.root.dataset.view = view === "terminal" ? "entering" : "leaving";
+    if (view === "terminal") {
+      this.root.dataset.view = view;
+      this.draw();
+      this.pause();
+      this.onSettled(view);
+      return;
+    }
+    this.root.dataset.view = view === "monitor" ? "entering" : "leaving";
     this.root.classList.remove("monitor-hovered");
     if (this.useWebGL) this.resume();
-    const target = view === "terminal" ? 1 : 0;
+    const target = view === "monitor" ? 1 : 0;
     this.tween = gsap.to(this.progress, {
       value: target,
       duration: this.reduced.matches
@@ -237,7 +244,7 @@ export class WorkspaceScene {
       onUpdate: () => this.draw(),
       onComplete: () => {
         this.root.dataset.view = view;
-        if (view === "terminal") this.pause();
+        if (view === "monitor") this.pause();
         this.onSettled(view);
       },
     });
@@ -326,6 +333,10 @@ export class WorkspaceScene {
     // visible screen while retaining the photographed bezel above and below it.
     const left = Math.max(0, rect.left);
     const right = Math.min(w, rect.left + rect.width);
+    // Keep the preview attached to the physical screen, including when a
+    // portrait close-up crops its sides. The interactive terminal can reflow.
+    this.screen.style.setProperty("--mini-scale", String(rect.width / 840));
+    this.screen.style.setProperty("--mini-offset", `${rect.left - left}px`);
     rect = {
       ...rect,
       left,
@@ -339,20 +350,14 @@ export class WorkspaceScene {
         height: `${rect.height}px`,
       });
     }
-    this.screen.style.setProperty("--mini-scale", String(rect.width / 840));
     this.root.style.setProperty("--journey", String(p));
     this.root.style.setProperty(
       "--desk-opacity",
       String(Math.max(0, 1 - p * 3)),
     );
-    this.root.style.setProperty(
-      "--mini-opacity",
-      String(Math.max(0, 1 - p * 2.8)),
-    );
-    this.root.style.setProperty(
-      "--terminal-opacity",
-      String(Math.max(0, Math.min(1, (p - 0.36) / 0.3))),
-    );
+    const terminalOpen = this.root.dataset.view === "terminal";
+    this.root.style.setProperty("--mini-opacity", terminalOpen ? "0" : "1");
+    this.root.style.setProperty("--terminal-opacity", terminalOpen ? "1" : "0");
     this.root.dataset.progress = p.toFixed(3);
   };
 

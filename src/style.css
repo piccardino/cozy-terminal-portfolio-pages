@@ -256,6 +256,7 @@ time {
   opacity: var(--mini-opacity);
   color: #53ffd0;
   overflow: hidden;
+  transition: opacity 0.25s ease;
   text-shadow: 0 0 6px #25ffad30;
 }
 .mini-inner {
@@ -263,6 +264,7 @@ time {
   grid-template-columns: 190px 1fr 181px;
   gap: 20px;
   position: absolute;
+  left: var(--mini-offset, 0px);
   width: 840px;
   height: 432px;
   padding: 22px 24px;
@@ -321,6 +323,9 @@ time {
   font-size: 11px;
   color: #72a68a;
   letter-spacing: 0.5px;
+}
+.workspace[data-view="monitor"] .mini-enter {
+  text-align: center;
 }
 .mini-system {
   border-left: 1px solid #38e3a360;
@@ -563,8 +568,8 @@ time {
   stroke-width: 1.5;
   opacity: 0.85;
 }
-.workspace[data-view="desk"].monitor-hovered .monitor-highlight,
-.workspace[data-view="desk"]:has(.monitor-hotspot:focus-visible)
+.workspace:is([data-view="desk"], [data-view="monitor"]).monitor-hovered .monitor-highlight,
+.workspace:is([data-view="desk"], [data-view="monitor"]):has(.monitor-hotspot:focus-visible)
   .monitor-highlight {
   opacity: 1;
 }
@@ -572,10 +577,10 @@ time {
   pointer-events: fill;
   cursor: pointer;
 }
-.workspace:not([data-view="desk"]) .monitor-hit-target {
+.workspace:not([data-view="desk"]):not([data-view="monitor"]) .monitor-hit-target {
   pointer-events: none;
 }
-.workspace:not([data-view="desk"]) .monitor-hotspot {
+.workspace:not([data-view="desk"]):not([data-view="monitor"]) .monitor-hotspot {
   pointer-events: none;
   opacity: 0;
 }
@@ -673,6 +678,7 @@ time {
   pointer-events: none;
   min-width: 320px;
   font-size: 14px;
+  transition: opacity 0.25s ease;
 }
 .workspace[data-view="terminal"] .terminal {
   pointer-events: auto;
