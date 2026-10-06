@@ -374,8 +374,8 @@ export class WorkspaceScene {
     const inset = Math.max(7, Math.min(14, rect.width * 0.018));
     this.wallpaperToggle.style.left = `${rect.left + rect.width - inset}px`;
     this.wallpaperToggle.style.top = `${rect.top + rect.height - inset}px`;
-    this.monitorReturn.style.left = `${rect.left + inset}px`;
-    this.monitorReturn.style.top = `${rect.top + rect.height - inset}px`;
+    this.monitorReturn.style.left = `${rect.left + rect.width - inset}px`;
+    this.monitorReturn.style.top = `${rect.top + inset}px`;
     this.root.style.setProperty("--journey", String(p));
     this.root.style.setProperty(
       "--desk-opacity",

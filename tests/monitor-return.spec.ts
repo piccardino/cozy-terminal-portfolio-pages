@@ -20,7 +20,10 @@ test("close-up exposes a return button in every photo format and restores the de
     const wallpaper = (await page.locator(".wallpaper-toggle").boundingBox())!;
     expect(button.x).toBeGreaterThanOrEqual(Math.max(0, screen.x));
     expect(button.y).toBeGreaterThanOrEqual(screen.y);
-    expect(button.x + button.width).toBeLessThan(wallpaper.x);
+    expect(button.x + button.width).toBeLessThanOrEqual(screen.x + screen.width);
+    expect(button.x + button.width).toBeGreaterThan(screen.x + screen.width - 16);
+    expect(button.y).toBeLessThan(screen.y + 16);
+    expect(button.y + button.height).toBeLessThan(wallpaper.y);
     expect(button.y + button.height).toBeLessThanOrEqual(screen.y + screen.height);
     await back.click();
     await expect(page.locator(".workspace")).toHaveAttribute("data-view", "desk");
