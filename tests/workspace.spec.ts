@@ -46,7 +46,7 @@ async function trackAudio(page: Page) {
   });
 }
 
-test("camera matches the photograph, enters HTML, pauses, and reverses with Escape", async ({
+test("camera matches the photograph, zooms into the framed monitor, pauses, and reverses with Escape", async ({
   page,
 }) => {
   const errors: string[] = [];
@@ -68,8 +68,14 @@ test("camera matches the photograph, enters HTML, pauses, and reverses with Esca
     "data-render-state",
     "paused",
   );
-  const full = await page.locator(".monitor-surface").boundingBox();
-  expect(full).toEqual({ x: 0, y: 0, width: 1440, height: 900 });
+  const close = (await page.locator(".monitor-surface").boundingBox())!;
+  expect(close.width).toBeGreaterThan(rect!.width * 1.5);
+  expect(close.x).toBeGreaterThan(20);
+  expect(close.y).toBeGreaterThan(20);
+  expect(close.x + close.width).toBeLessThan(1420);
+  expect(close.y + close.height).toBeLessThan(880);
+  expect(close.width / close.height).toBeCloseTo(rect!.width / rect!.height, 2);
+  expect(await page.evaluate(() => document.fullscreenElement)).toBeNull();
   await expect(page.locator("#file-content")).toBeFocused();
   await page.screenshot({ path: ".local/terminal-desktop.png" });
   await page.keyboard.press("Escape");
@@ -365,21 +371,21 @@ test("LinkedIn hover reaches the entire photograph through the empty header acro
   await page.goto("/");
   const link = page.locator(".linkedin-hotspot");
   for (const viewport of [
-    { width: 1440, height: 900 },
-    { width: 1920, height: 1080 },
-    { width: 1440, height: 600 },
-    { width: 790, height: 884 },
+    { width: 1440, height: 900, engine: "webgl", photoWidth: 1672, photoHeight: 941, linkWidth: 208 },
+    { width: 1920, height: 1080, engine: "css", photoWidth: 2365, photoHeight: 665, linkWidth: 157 },
+    { width: 1440, height: 600, engine: "css", photoWidth: 2365, photoHeight: 665, linkWidth: 157 },
+    { width: 790, height: 884, engine: "css", photoWidth: 941, photoHeight: 1672, linkWidth: 201 },
   ]) {
     await page.setViewportSize(viewport);
     await expect(page.locator(".workspace")).toHaveAttribute(
       "data-engine",
-      "webgl",
+      viewport.engine,
     );
-    await page.waitForFunction(() => {
+    await page.waitForFunction(({ photoWidth, photoHeight, linkWidth }) => {
       const link = document.querySelector(".linkedin-hotspot")!;
-      const scale = Math.max(innerWidth / 1672, innerHeight / 941);
-      return Math.abs(link.getBoundingClientRect().width - 208 * scale) < 0.1;
-    });
+      const scale = Math.max(innerWidth / photoWidth, innerHeight / photoHeight);
+      return Math.abs(link.getBoundingClientRect().width - linkWidth * scale) < 0.1;
+    }, viewport);
     const photo = (await link.boundingBox())!;
     const screen = await page.locator(".monitor-surface").boundingBox();
     for (const y of [0.04, 0.23, 0.5, 0.96]) {
@@ -415,7 +421,7 @@ test("LinkedIn hover reaches the entire photograph through the empty header acro
       }
     }
     await page.mouse.move(10, viewport.height / 2);
-    await expect(page.locator(".linkedin-highlight")).toHaveCSS("opacity", "0");
+    await expect(page.locator(".linkedin-highlight")).toHaveCSS("opacity", "0.7");
   }
   await link.focus();
   await page.keyboard.press("Tab");

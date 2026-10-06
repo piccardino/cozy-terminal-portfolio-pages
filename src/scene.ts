@@ -29,6 +29,7 @@ export class WorkspaceScene {
   private lastTime = 0;
   private elapsed = 0;
   private engineReady?: Promise<void>;
+  private outline: SVGElement;
 
   constructor(
     private root: HTMLElement,
@@ -37,6 +38,7 @@ export class WorkspaceScene {
     private hotspot: HTMLButtonElement,
     private onSettled: (view: View) => void,
   ) {
+    this.outline = root.querySelector<SVGElement>(".monitor-outline")!;
     this.observer = new ResizeObserver(this.resize);
     this.observer.observe(root);
     document.addEventListener("visibilitychange", this.visibility);
@@ -265,8 +267,10 @@ export class WorkspaceScene {
       const startZ =
         startHeight /
         (2 * Math.tan(T.MathUtils.degToRad(sceneConfig.camera.fov / 2)));
+      // Keep the photographed bezel in view instead of zooming past the screen.
       const endHeight =
-        Math.min(m.height, m.width / aspect) / sceneConfig.zoomTarget.overscan;
+        Math.max(m.height, m.width / aspect) /
+        sceneConfig.zoomTarget.screenCoverage;
       const endZ =
         endHeight /
         (2 * Math.tan(T.MathUtils.degToRad(sceneConfig.zoomTarget.fov / 2)));
@@ -309,14 +313,23 @@ export class WorkspaceScene {
     } else {
       rect = this.applyFallback();
     }
-    // Once the bezel is leaving the viewport, settle the HTML surface into its exact viewport bounds.
-    const rawBlend = Math.max(0, Math.min(1, (p - 0.68) / 0.32));
-    const blend = rawBlend * rawBlend * (3 - 2 * rawBlend);
+    // The object outlines travel with the photograph throughout the close-up.
+    const original = photoScreenRect(w, h);
+    const zoom = rect.width / original.width;
+    const photoScale = Math.max(w / sceneConfig.photo.width, h / sceneConfig.photo.height);
+    const photoLeft = (w - sceneConfig.photo.width * photoScale) / 2;
+    const photoTop = (h - sceneConfig.photo.height * photoScale) / 2;
+    const outlineX = rect.left - photoLeft - (original.left - photoLeft) * zoom;
+    const outlineY = rect.top - photoTop - (original.top - photoTop) * zoom;
+    this.outline.style.transform = `translate(${outlineX}px, ${outlineY}px) scale(${zoom})`;
+    // A portrait close-up crops the monitor's sides. Keep its content inside the
+    // visible screen while retaining the photographed bezel above and below it.
+    const left = Math.max(0, rect.left);
+    const right = Math.min(w, rect.left + rect.width);
     rect = {
-      left: rect.left * (1 - blend),
-      top: rect.top * (1 - blend),
-      width: rect.width + (w - rect.width) * blend,
-      height: rect.height + (h - rect.height) * blend,
+      ...rect,
+      left,
+      width: Math.max(0, right - left),
     };
     for (const element of [this.screen, this.hotspot]) {
       Object.assign(element.style, {
@@ -348,12 +361,11 @@ export class WorkspaceScene {
     const h = this.root.clientHeight;
     const rect = photoScreenRect(w, h);
     const p = this.progress.value;
+    const zoom = photoProfile === "portrait"
+      ? h / rect.height
+      : Math.min(w / rect.width, h / rect.height);
     const scale =
-      1 +
-      (Math.max(w / rect.width, h / rect.height) *
-        sceneConfig.zoomTarget.overscan -
-        1) *
-        p;
+      1 + (zoom * sceneConfig.zoomTarget.screenCoverage - 1) * p;
     const cx = rect.left + rect.width / 2;
     const cy = rect.top + rect.height / 2;
     const tx = (w / 2 - cx) * p;

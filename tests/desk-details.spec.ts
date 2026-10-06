@@ -10,25 +10,33 @@ test("mug hover follows its body and handle, excluding the hole and surrounding 
     { width: 1280, height: 720 },
   ]) {
     await page.setViewportSize(viewport);
-    const scale = Math.max(viewport.width / 1672, viewport.height / 941);
-    const offsetX = (viewport.width - 1672 * scale) / 2;
-    const offsetY = (viewport.height - 941 * scale) / 2;
+    const wide = viewport.width / viewport.height >= 16 / 9;
+    const photo = wide ? { width: 2365, height: 665 } : { width: 1672, height: 941 };
+    const scale = Math.max(viewport.width / photo.width, viewport.height / photo.height);
+    const offsetX = (viewport.width - photo.width * scale) / 2;
+    const offsetY = (viewport.height - photo.height * scale) / 2;
     await expect.poll(async () => (await page.locator(".cv-hotspot").boundingBox())!.width)
-      .toBeCloseTo(181 * scale, 0);
+      .toBeCloseTo((wide ? 133 : 181) * scale, 0);
     const screen = await page.locator(".monitor-surface").boundingBox();
-    for (const [photoX, photoY, onMug] of [
+    const points = wide ? [
+      [1660, 500, true], [1640, 464, true], [1615, 515, true],
+      [1735, 510, true], [1725, 540, true],
+      [1719, 510, false], [1713, 528, false],
+      [1604, 510, false], [1660, 451, false], [1660, 575, false], [1747, 510, false],
+    ] as const : [
       [1495, 700, true], [1490, 628, true], [1430, 710, true],
       [1558, 708, true], [1604, 695, true],
       [1580, 695, false], [1563, 710, false],
       [1424, 708, false], [1490, 618, false], [1490, 780, false], [1612, 695, false],
-    ] as const) {
+    ] as const;
+    for (const [photoX, photoY, onMug] of points) {
       const x = offsetX + photoX * scale, y = offsetY + photoY * scale;
       if (x >= viewport.width || x < 0) continue;
       await page.mouse.move(x, y);
       const hit = await page.evaluate(({ x, y }) =>
         !!document.elementFromPoint(x, y)?.closest(".cv-hotspot"), { x, y });
       expect(hit, `${photoX},${photoY} at ${viewport.width}`).toBe(onMug);
-      await expect(page.locator(".cv-highlight")).toHaveCSS("opacity", onMug ? "1" : "0");
+      await expect(page.locator(".cv-highlight")).toHaveCSS("opacity", onMug ? "1" : "0.7");
       expect(await page.locator(".monitor-surface").boundingBox()).toEqual(screen);
     }
   }

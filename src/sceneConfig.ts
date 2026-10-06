@@ -43,7 +43,7 @@ export const sceneConfig = {
   },
   camera: { fov: 42, near: 0.05, far: 80 },
   cameraTarget: { x: 0, y: 0, z: 0 },
-  zoomTarget: { fov: 34, overscan: 1.035 },
+  zoomTarget: { fov: 34, screenCoverage: 0.92 },
   monitorPlane: { z: 0.012, glow: 0.045 },
   motion: { duration: 1.85 },
   performance: { maxDpr: 1.5, mobileBreakpoint: 760 },
